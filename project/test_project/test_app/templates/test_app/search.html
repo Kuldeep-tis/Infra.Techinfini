@@ -1,0 +1,238 @@
+<!-- At the top of your page add load static -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table, td, th {
+  border: 1px solid;
+  border: none;
+}
+tr{
+        height:50px
+
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+        .deleteModal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+
+        }
+
+        .deleteModalContent {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .deleteModal button {
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 8px 20px;
+        }
+
+</style>
+</head>
+{% include 'test_app/navbar.html' %}
+   {% if disable %}
+    <a href="/view_tool"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;"></a>
+    {% else %}
+        <a href="/view_employee"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;"></a>
+
+    {% endif %}
+<p id="message1"></p>
+
+<h1 class='list' style="text-align: center;">Employee Tools</h1>
+<table>
+ 
+  <thead style="background-color: #eee;">   
+    <tr>    
+                <th> Serial no.</th>
+                <th>Asset_Name</th>
+                
+                <th>Asset_Id</th>
+                <th>Asset Category</th>
+                <th>Employee id</th>
+                <th>Employee name</th>
+                <th colspan="2">Action</th>
+    
+                
+                
+                
+                
+                
+            </tr>
+    </thead>
+
+    <tbody>
+     {% if data %}
+       {% for k in data  %}
+        
+           
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td style="text-transform: capitalize; font-weight: bold;">{{k.tool_name}}</td>
+                
+                <td>{{k.tool_id}}</td>
+                <td>{{k.tool_category}}</td>
+                
+                
+                <td>{{k.assigned_employee_id}}</td>
+                <td style="text-transform: capitalize;">{{k.tool_assigned}}</td>
+                <td>
+                <button onclick="deleteEmployee('{{ k.tool_id }}')" style="background-color:  #433f3f; color: white;"> Delete</button>
+                    <!-- <button onclick="deletethis()" >OUT</button> -->
+               </td>
+
+                
+                
+           <!-- <td>     <form  action="{% url 'edit_tool' %}" method="POST">
+                     {% csrf_token %}
+                    <input type="hidden" name="tool_id" value="{{k.tool_id}}">
+                  <a href="{% url 'edit_tool' %}"><input type="submit" value="Edit"></a> </form></td> -->
+
+
+
+               
+
+               
+                  <td> <form action="{% url 'unassign_tool' %}" method="POST">
+                     {% csrf_token %}
+                    <input type="hidden" name="tool_id" value="{{k.id}}">
+                    <a href="{% url 'unassign_tool' %}"><input type="submit" value="Unassign" style="background-color:  #433f3f; color: white; padding: 4px;"></a> </form>
+
+                  </td>           
+               
+        
+            
+            </tr>
+            {% endfor %}
+            {% else %}
+           <td colspan="8">No Tool</td>
+            {% endif %}
+
+    </tbody>
+            
+            
+        </table>
+
+
+<div id="deleteModal" class="deleteModal">
+    <div id="deleteModalContent" class="deleteModalContent">
+        <h2>Confirm Delete</h2>
+        <p>Are you sure you want to delete this tool?</p>
+        <button onclick="deleteTool()">Yes</button>
+        <button onclick="closeModal()">No</button>
+    </div>
+</div>
+
+
+
+
+</body>
+<script>
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    function deleteEmployee(toolId) {
+        console.log("hello")
+        toolIdToDelete = toolId;
+        document.getElementById('deleteModal').style.display = 'block';
+    }
+    function deleteTool(){
+      console.log(toolIdToDelete)
+     fetch('/delete_tool12/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ tool_id: toolIdToDelete })
+      })
+        .then(response => response.json())
+
+              .then(data => {
+                console.log("success")
+                console.log(data.success)
+                if(data.message){
+                  console.log("hello")
+                    const messageElement = document.getElementById('message1');
+                    messageElement.textContent = "Tool Deleted Successfully";
+
+                  setTimeout(function(){
+
+                
+                       window.location.href = '/view_tool/';
+
+                            },700);
+                 }
+                else{
+
+                }
+                
+                        // window.location.href = "/view_employee/";
+ // Handle errors
+
+                
+      
+           })
+      .catch(error => {
+        console.error('Delete failed:', error);
+      });
+    
+
+
+
+
+
+
+    }
+
+    function closeModal() {
+      console.log("no")
+        document.getElementById('deleteModal').style.display = 'none';
+        toolIdToDelete = null;
+    }
+
+
+
+</script>
+
+
+
+
+
+
+</html>

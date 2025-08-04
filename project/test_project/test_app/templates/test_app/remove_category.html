@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration Form</title>
+    <style>
+        /* Navbar styling */
+        ul {
+            list-style-type: none;
+            margin: -10px;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+        }
+        li {
+            float: right;
+        }
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+
+        
+        h1 {
+            text-align: center;
+            margin-top: 30px;
+            color: #333;
+            font-family: Arial, sans-serif;
+        }
+
+      
+        p {
+            color: red;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        
+
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        select, input[type="submit"], input[type="date"] {
+            width: 35%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        
+
+        button {
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 5%;
+            margin-top: 20px;
+            padding: 10px 20px;
+        }
+
+        
+    </style>
+</head>
+<body>
+
+{% include 'test_app/navbar.html' %}
+    <a href="/inventory"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;"></a>
+
+
+<h1>Remove Category</h1>
+
+<p>{{value}}</p>
+
+
+    <div >
+        <div>
+        
+        <div>
+            <label>Categories </label>
+            <select name="category_name"  id="remove">
+                {% for k in categories %}
+                    <option value="{{k.category_name}}">{{k.category_name}} </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    
+    <button type="button" onclick="remove_function()">Submit</button>
+
+
+</body>
+
+<script>
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+
+
+
+function remove_function(){
+    const input=document.getElementById('remove')
+    console.log(input.value)
+    removeValue=input.value
+    
+
+     fetch('/remove_category/',{  
+
+    method :'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body : JSON.stringify({'remove':removeValue}),
+
+
+    })
+        .then(response => response.json())
+              .then(data => {
+                if(data.success){
+                    
+                    if(data.redirect_url){
+                    
+                window.location.href = data.redirect_url;
+
+                    }
+                }
+                else{
+                alert('Error: ' + data.message); 
+
+                }
+        window.location.href = "/inventory/";
+           })
+.catch((error) => {
+    console.error('Error:', error);
+});
+
+}
+
+
+
+
+
+
+</script>
+
+
+</html>

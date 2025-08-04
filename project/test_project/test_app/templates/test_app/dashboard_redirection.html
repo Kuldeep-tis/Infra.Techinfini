@@ -1,0 +1,347 @@
+<!-- At the top of your page add load static -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+table, td, th {
+  border: 1px solid;
+  border: none;
+  font-size: 18px;
+}
+tr{
+        height:50px
+
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+ul {
+
+  list-style-type: none;
+  margin: -10px;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li {
+  float: right;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+
+
+
+</style>  
+</head>
+<body>
+
+        
+
+
+
+{% include 'test_app/navbar.html' %}
+    <a href="/dashboard"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;"></a>
+
+       {% if messages %}
+        
+           {% for message in messages %} 
+                
+                 <p id="msg">{{ message}}</p>  
+                
+            {% endfor %}  
+        
+    {% endif %}
+<br>
+    
+     <button type="button"  style=   "padding: 0px; width: 80px; float: right; margin-top: 120px;"  onclick="search_function()">Search</button>      
+
+<input type="text" id="search" name="search"  placeholder="Search Here" style="float: right; margin-top: 120px;"><br><br>
+
+
+<h1 class='list' style="text-align: center; margin: 40px;">Asset Details</h1>
+
+
+<table>
+ 
+  <thead style="background-color: #eee;">  
+     <tr>    
+                <th> Serial no.</th>
+                <th>Asset Name</th>
+                
+                <th>Asset Id</th>
+                <th>Assigned To</th>
+                <th>Asset Avaliability</th>
+                <th>Asset Category</th>
+                <th>Assigned Employee ID</th>
+              <!--  <th>tool image</th>  -->
+                <th colspan="3">Action</th>
+                
+                
+                
+                
+            </tr>
+    </thead>
+
+    <tbody id="tableBody">
+
+       {% for k in data  %}
+        
+           
+      <tr>
+                <td>{{forloop.counter}}</td>
+                <td style="text-transform: capitalize; font-weight: bold;">{{k.tool_name}}</td>
+                <td>{{k.tool_id}}</td>
+               {% if k.tool_assigned != None %}
+                <td> <form action="{% url 'search' %}" method="POST">
+                     {% csrf_token %}
+                    <input type="hidden" name="tool_id" value="{{k.assigned_employee_id}}">
+                    <input type="submit" value="{{k.tool_assigned}}" style="background: none; border: none; color: black; font-size: medium; font-weight: bold;
+                    text-transform: capitalize; text-decoration: underline;"> </form>
+
+                </td>
+                
+                {% else %}
+                <td>{{k.tool_assigned}}</td>
+                {% endif %}
+                <td>{{k.tool_avaliability}}</td>
+                <td>{{k.tool_category}}</td>
+                
+               <td>{{k.assigned_employee_id}}</td>
+                 <!---   {% if k.image %}
+                   <td> <a href="/{{k.image.url}}">{{k.image}}</a></td>
+                   <td><img src="{{  k.image.url }}" alt="" width="50" height="50"></td>  
+                
+                     {% else %}
+                   <td>{{"none"}}</td>
+                        {% endif %} -->
+         
+                  {% if k.tool_avaliability  == "In-Repair" %}
+                  <td> 
+                     In-Repair
+
+                  </td>             
+               
+               
+                              
+
+                   {% endif %} 
+                
+    
+                  {% if k.tool_avaliability  == "Assigned" %}
+                  <td> <form action="{% url 'unassign_tool' %}" method="POST">
+                     {% csrf_token %}
+                    <input type="hidden" name="tool_id" value="{{k.id}}">
+                    <a href="{% url 'unassign_tool' %}"><input type="submit" value="Unassign"  style="background-color:  #433f3f; color: white;"></a> </form>
+
+                  </td>             
+                  {% endif %} 
+                  {% if k.tool_avaliability  ==  "Avaliable" %}
+               
+               
+                  <td> <form action="{% url 'assign_tool' %}" method="POST">
+                     {% csrf_token %}
+                    <input type="hidden" name="tool_id" value="{{k.tool_id}}">
+                   <a href="{% url 'assign_tool' %}"><input type="submit" value="Assign"  style="background-color:  #433f3f; color: white;"></a> </form>
+                  </td>
+                  {% endif %}
+
+
+          
+
+                  <td> <form action="{% url 'history' %}" method="POST">
+                     {% csrf_token %}
+                    <input type="hidden" name="tool_id" value="{{k.tool_id}}">
+                    <input type="hidden" name="back" value="back">
+                    <a href="{% url 'history' %}"><input type="submit" value="History" style="background-color:  #433f3f; color: white;"></a> </form>
+
+                  </td>  
+
+                
+
+
+            </tr>
+        {% endfor %}
+
+    </tbody>
+            
+        </table>
+
+
+
+
+
+
+</body>
+<script>
+ 
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+function search_function(){
+  const input=document.getElementById("search")
+  console.log(input.value)
+  const searchValue = input.value.trim();
+
+  fetch('/asset_details/',{
+    method :'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body : JSON.stringify({'search':searchValue}),
+      })
+        .then(response => response.json())
+      .then(data => {
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+        data.searched_data.forEach((item,index) => {
+          const row=tableBody.insertRow();
+          row.insertCell().textContent = index + 1;
+          // row.insertCell().textContent = item.tool_name;
+           const toolNameCell = row.insertCell();
+          toolNameCell.textContent = item.tool_name;
+          toolNameCell.style.textTransform = "capitalize";
+          toolNameCell.style.fontWeight = "bold"; 
+          row.insertCell().textContent = item.tool_id;
+          if(item.tool_assigned != null){
+          const nameCell = row.insertCell();
+          
+          const form = document.createElement("form");
+          form.method = "POST";
+          form.action = "/search/";
+          form.innerHTML = `
+            <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+            <input type="hidden" name="tool_id" value="${item.assigned_employee_id}">
+            <input type="submit" value="${item.tool_assigned}" style="background: none; border: none; color: black; font-size: medium;
+            font-weight: bold;
+                    text-transform: capitalize; text-decoration: underline;">
+          `;
+          nameCell.appendChild(form);
+        }
+          else {
+          row.insertCell().textContent = "None";
+
+          }
+    
+          row.insertCell().textContent = item.tool_avaliability;
+
+          row.insertCell().textContent = item.tool_category;
+          if (item.tool_assigned != null){
+          row.insertCell().textContent = item.assigned_employee_id;}
+          else{
+            row.insertCell().textContent= "None"
+          }
+          if(item.tool_avaliability=='In-Repair'){
+          row.insertCell().textContent = "In-Repair";}
+          else if(item.tool_avaliability=="Assigned"){
+                   const deleteCell = row.insertCell();
+                   deleteCell.innerHTML = `
+             <form action="/unassign_tool/" method="POST">
+                  <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+
+                 <input type="hidden" name="tool_id" value="${item.id}">
+                 <input type="submit" value="unassign"  style="background-color:  #433f3f; color: white;">
+             </form>`;
+            
+          }
+          else{
+          const editCell = row.insertCell();
+          editCell.innerHTML = `
+                  <form action="/assign_tool/" method="POST">
+              <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+              <input type="hidden" name="tool_id" value="${item.tool_id}">
+              <input type="submit" value="Assign"  style="background-color:  #433f3f; color: white;" >
+                   </form>
+          `;
+
+          }
+          const historyCell = row.insertCell();
+          historyCell.innerHTML = `
+                  <form action="/history/" method="POST">
+              <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+              <input type="hidden" name="tool_id" value="${item.tool_id}">
+              <input type="submit" value="History" style="background-color:  #433f3f; color: white;">
+                   </form>
+          `;
+        //   console.log("hello")
+        //   if (item.tool_avaliability=="In-Repair"){
+        //   const editCell = row.insertCell();
+        //   editCell.innerHTML = `
+        //           <form action="/unrepair_tool/" method="POST">
+        //             <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+        //             <input type="hidden" name="tool_id" value="${item.tool_id}">
+        //             <input type="hidden" name="flag" value="${item.tool_id}">
+
+        //           <input type="submit" value="Repair Done"  style="background-color:  #433f3f; color: white;">
+  
+        //   `;
+
+        //  }
+        //  else{
+        //   row.insertCell().textContent = "Not In Repair";
+
+
+        //  }
+          
+        });
+      
+      })
+.catch((error) => {
+    console.error('Error:', error);
+});
+           const myTimeout = setTimeout(myGreeting, 2000);
+
+function myGreeting() {
+  document.getElementById("msg").innerHTML = ""
+}
+
+function myStopFunction() {
+  clearTimeout(myTimeout);
+}
+
+}
+
+
+
+           const myTimeout = setTimeout(myGreeting, 2000);
+
+function myGreeting() {
+  document.getElementById("msg").innerHTML = ""
+}
+
+function myStopFunction() {
+  clearTimeout(myTimeout);
+}
+
+
+
+
+
+
+
+</script>
+</html>

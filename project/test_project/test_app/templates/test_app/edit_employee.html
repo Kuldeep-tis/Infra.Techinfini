@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration Form</title>
+</head>
+<style>
+
+       form {
+            max-width: 1000px;
+            margin: 15px auto;
+            padding: 0px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+        }
+           .form-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            gap: 1rem;
+            margin-bottom: 10px;
+        }
+         input {
+            width: 105%;
+            padding: 7px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        form label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        button[type="submit"] {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            margin-top: 5px;
+            border-radius: 5px;
+            
+        }
+
+
+
+</style>
+
+
+<body>
+    {% include 'test_app/navbar.html' %}
+    <a href="/view_employee"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;"></a>
+
+        
+
+<form action="/edit_employee12/"  method="POST">
+          {% if msg %}
+        
+            
+                
+                 <p id="msg" style="text-align: center; color: red;">{{ msg }}</p>
+                
+            
+        
+    {% endif %}
+    {% csrf_token %}
+    <h1 style="text-align: center;">Edit Employee</h1>
+<div class="form-row">
+  <div>
+
+    <label for="employee_name">Employee Name:</label><br>
+    <input type="text" id="employee_name" name="employee_name" value="{{employee.employee_name}}" required><br><br>
+  </div>
+  <div>
+    <label for="employee_contact">Employee Contact:</label><br>
+    <input type="number" id="employee_contact" name="employee_contact" value="{{employee.employee_contact}}"required><br><br>
+  </div>
+</div>
+<div class="form-row">
+  <div>
+    <label for="employee_email">Employee Email:</label><br>
+    <input type="email" id="employee_email" name="employee_email" value="{{employee.employee_email}}"required><br><br>
+  </div>
+  <div>
+    <label for="team_name">Team Name:</label><br>
+    <input type="text" id="team_name" name="team_name" value="{{employee.team_name}}"required><br><br>
+  </div>
+</div>
+            <label style="text-align: center;">Choose department:</label>
+
+
+<select name="employee_department" id="employee_department"  style="text-align: center; margin-left: 420px; width: 140px; padding: 10px;" >
+             
+
+            
+   
+    <option value="Devloper"{% if employee.employee_department == "Devloper" %} selected {% endif%}>Devloper</option>
+  <option value="Networking"{% if employee.employee_department == "Networking" %} selected {% endif%}>Networking</option>
+  <option value="QA" {% if employee.employee_department == "QA" %} selected {% endif%}>QA</option>
+    <option value="Sales" {% if employee.employee_department == "Sales" %} selected {% endif%}>Sales</option>
+  <option value="HR" {% if employee.employee_department == "HR" %} selected {% endif%}>HR</option>
+
+</select> 
+    
+    <input type="hidden" id="employee_code" name="employee_code" value="{{employee.employee_code}}"required><br><br>
+
+    
+    <button type="submit" style="margin-left: 450px;">submit</button><br><br>
+    
+</form>
+
+
+<script>
+       const myTimeout = setTimeout(myGreeting, 2000);
+
+function myGreeting() {
+  document.getElementById("msg").innerHTML = ""
+}
+
+function myStopFunction() {
+  clearTimeout(myTimeout);
+}
+
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration Form</title>
+
+     <style>
+    
+
+    
+ul {
+  list-style-type: none;
+  margin: -10px;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li {
+  float: right;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+ h1 {
+            text-align: center;
+            margin-top: 30px;
+            color: #333;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Error messages */
+        p {
+            color: red;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* Form container */
+        form {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Flexbox layout for selects */
+        .form-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 3rem;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        select, input[type="submit"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"]:disabled {
+            background-color: #ccc;
+        }
+
+        button {
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 40%;
+            margin-top: 20px;
+            padding: 10px 20px;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        /* Responsive date and button section */
+        .assign-date {
+            text-align: center;
+            margin-top: 20px;
+            width: 400px;
+        }
+        .assign-date input {
+            margin-top: 10px;
+        }
+    </style>
+    
+</head>
+    
+
+
+
+<body>
+    {% include 'test_app/navbar.html' %}
+
+      <h1 style="text-align: center;">Assign asset</h1><br>
+
+
+
+
+
+
+<form action="/assigned/"  method="POST" >
+{% csrf_token %}
+<div class="form-row">
+  <div>
+ <label>Tool to be assigned</label><br>
+<input type="text" readonly name="tool_id" value="{{data}}" style="padding: 10px;"></div>
+<div>
+<label for="employee_code">Employee id:</label><br>
+
+<select name="employee_code" id="employee_code" style="width: 150px; padding: 10px;">
+
+{% for   k in employee %}
+            
+
+  <option style="text-align: center; " value="{{k.employee_code}}" >{{k.employee_code}} ({{k.employee_name}})</option>
+  
+{% endfor %}
+</select></div></div>
+<div class="assign-date">
+
+<br>
+        <label style="margin-left: 250px;">Assigned date:</label>
+       <input type="date"  name="date" style="margin-left: 250px; width: 200px;" ><br>   
+
+</div>
+    <br>
+    <button type="submit" style="width: 100px; margin-left: 300px;">submit</button><br>
+
+            
+
+</form>
+
+
+
+
+
+
+
+</body>
+</html>

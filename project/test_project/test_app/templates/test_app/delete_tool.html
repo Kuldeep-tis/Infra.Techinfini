@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration Form</title>
+</head>
+<body>
+
+<h2>Delete asset</h2>
+
+<form action="/delete_tool12/"  method="POST">
+    {% csrf_token %}
+    
+    <label for="tool_id">tool_id:</label><br>
+    <input type="number" id="tool_id" name="tool_id"><br><br>
+    
+
+    
+    <button type="submit">delete</button>
+</form>
+
+
+
+
+
+
+</body>
+</html>
