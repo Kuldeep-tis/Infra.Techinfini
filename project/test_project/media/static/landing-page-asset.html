@@ -1,0 +1,797 @@
+
+<!-- At the top of your page add load static -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<style>
+   table, td, th {
+     border: 1px solid;
+     border: none;
+     
+   }
+  tr{
+        height:50px
+
+  }
+  td{
+    border-bottom: 1px solid gray;
+  }
+
+  table {
+     width: 100%;
+     border-collapse: collapse;
+     text-align: center;
+     margin-left: auto;
+     margin-right: auto;
+  }
+  ul {
+
+    list-style-type: none;
+    margin: -10px;
+    overflow: hidden;
+    background-color: #333;
+  }
+
+  li {
+    float: right;
+  }
+
+  li a {
+    display: block;
+   color: white;
+   text-align: center;
+   padding: 14px 16px;
+   text-decoration: none;
+  }
+  .deleteModal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+
+  }
+
+  .deleteModalContent {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 10px;
+            text-align: center;
+  }
+
+  .deleteModal button {
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 8px 20px;
+  }
+  .filter{
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+           
+            height: 50%;
+  }
+  .filtercontent{
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            height: 100vh;
+            border-radius: 10px;
+            text-align: center;
+
+  }
+  .namebox{
+           
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 158%;
+            height: 50%;
+           
+   
+  }
+  .nameboxList{
+              background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 200px;
+            height: auto;
+            border-radius: 10px;
+            text-align: center;
+
+  }
+  .sub_filter{
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 200px;
+            height: auto;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 200px;
+
+  }
+
+ 
+
+       
+
+
+
+</style>  
+</head>
+
+<body>
+       
+
+
+
+{% include 'test_app/navbar.html' %}
+<div>
+<br>
+
+
+    <a href="/dashboard"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;"></a>
+   
+        {% if messages %}
+       
+           {% for message in messages %}
+               
+                 <p id="msg" style="font-weight: bold;">{{ message}}</p>  
+               
+            {% endfor %}  
+       
+     {% endif %}
+     <p id="message1"></p>
+
+  <a      href="{% url 'inventory' %}" style="float: right;">
+    <button type="submit" style="width: 200px; padding: 10px;">Add Asset</button>
+   
+  </a>
+   <button type="button" onclick="filter_function()"style="width: 200px; padding: 10px;">Filter</button>
+<br><br>
+  <br>
+
+
+<button type="button" onclick="search_function()" style=   "padding: 3px; width: 80px; float: right; margin-top: 70px;">Search</button>
+
+<input type="text" id="search" name="search" placeholder="Search Here" style="float: right; margin-top: 70px; padding: 3px;"><br><br>
+<h1 class='list' style="text-align: center; ">Asset Details</h1>
+
+</div>
+<table>
+ 
+  <thead style="background-color: #eee;">  
+   
+    <tr>    
+                <th> Serial no.</th>
+                <th>Asset ID</th>
+               
+                <th>Asset Name</th>
+                <th>Asset Avaliablity</th>
+                <th>Asset Category</th>
+                <th>Asset Compnay</th>
+                <th>Asset Model</th>
+                <th>Asset Price</th>
+                <th>purchase date</th>
+                <th>Warranty Date</th>
+                <th>Condition</th>
+                <th>Supplier</th>
+                <th>Remark</th>
+                <th>Location</th>
+                <th colspan="2">Action</th>
+
+               
+               
+               
+    </tr>
+  </thead>
+
+    <tbody id="tableBody">
+
+              {% for k in page_obj.object_list %}
+       
+           
+            <tr>
+                <td>{{forloop.counter}}</td>
+               
+                <td>{{k.tool_id}}</td>
+                <td style="text-transform: capitalize; font-weight: bold;">{{k.tool_name}}</td>
+                <td>{{k.tool_avaliability}}</td>
+                <td style="text-transform: capitalize;">{{k.tool_category}}</td>
+                {% if k.tool_company %}
+                   <td style="text-transform: capitalize;">{{k.tool_company}}</td>
+                {% else %}
+                   <td>--</td>
+                {% endif %}
+                {% if k.tool_model %}
+                   <td>{{k.tool_model}}</td>
+                {% else %}
+                   <td>--</td>
+                {% endif %}
+                {% if k.tool_price %}
+                <td>{{k.tool_price}}</td>
+                {% else %}
+                <td>--</td>
+                {% endif %}
+                {% if k.tool_purchase %}
+                    <td>{{k.tool_purchase}}</td>
+                {% else %}
+                     <td>--</td>
+                {% endif %}
+                {% if k.tool_warantty %}
+                  <td>{{k.tool_warantty}}</td>
+                {% else %}
+                  <td>--</td>
+                  {% endif %}
+                <td>{{k.tool_condition}}</td>
+                {% if k.tool_supplier %}
+                <td>{{k.tool_supplier}}</td>
+                {% else %}
+                <td>--</td>
+                {% endif %}
+                {% if k.tool_remark %}
+                <td>{{k.tool_remark}}</td>
+                {% else %}
+                <td>--</td>
+                {% endif %}
+                {% if k.tool_location %}
+                <td>{{k.tool_location}}</td>
+                {% else %}
+                <td >--</td>
+                {% endif %}
+               
+                <td>
+                <button onclick="deleteEmployee('{{ k.tool_id }}')" style="background:none; border:none; font-size:20px; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                    <!-- <button onclick="deletethis()" >OUT</button> -->
+               </td>
+               <td>   <form  action="{% url 'edit_tool' %}" method="POST">
+                     {% csrf_token %}
+                    <input type="hidden" name="tool_id" value="{{k.tool_id}}" >
+                  <a href="{% url 'edit_tool' %}"><input type="submit" class="fas" value=  "&#xf044;" style="background: none; border: none; font-size: 20px;" ></a> </form>
+
+               </td>
+            </tr>
+      {% endfor %}
+
+    </tbody>
+           
+</table>
+<div id="pagiation">
+   
+        {%if page_obj.has_previous %}
+            <a href="?page={{page_obj.previous_page_number}}" style="text-decoration: none; color: blue;"><</a>
+        {% endif %}
+        <span>Page {{page_obj.number}} of {{total}}</span>
+
+        {%if page_obj.has_next %}
+            <a href="?page={{page_obj.next_page_number}}" style="text-decoration: none; color: blue;">></a>
+        {% endif %}
+   
+</div>
+
+
+<div id="deleteModal" class="deleteModal">
+    <div id="deleteModalContent" class="deleteModalContent">
+        <h2>Confirm Delete</h2>
+        <p>Are you sure you want to delete this tool?</p>
+        <button onclick="deleteTool()">Yes</button>
+        <button onclick="closeModal()">No</button>
+    </div>
+</div>
+
+<div id="displayOptions" class="filter"  >
+  <div id="displayOptionsContent" class="filtercontent">
+   <div style="display: flex; gap: 8.5rem;">
+      <div>
+    <h2 >Advance Filters</h2>
+      <div>
+   
+       <label onclick="nameCheckboxes('tool_list')"style="cursor: pointer;" id="asset_name"><p  style="font-weight: bold;">Asset Name &#9660;</p></label><br>
+
+       <div id="assetNameCheckboxes" style="display: none;" >
+         <div>
+           {% for k in tool_list %}
+             <input type="checkbox" value="{{k}}" name="asset_name" >{{k}}<br>
+            {% endfor %}
+         </div>
+       </div>
+   
+      </div>
+      <div>
+        <br>
+         <label style="font-weight: bold;">Asset Company</label><br>
+          <input type="text" id="asset_company">
+      </div>
+
+      <div>
+         <label onclick="nameCheckboxes('availability')"style="cursor: pointer;" id="asset_availability"><p  style="font-weight: bold;">Asset Avaliablity &#9660;</p></label>
+
+         <div id="availabilityCheckboxes" style="display: none;" >
+           <input type="checkbox" value="Avaliable" name="Avaliablity">Avaliable<br>
+           <input type="checkbox" value="Assigned" name="Avaliablity">Assigned <br>
+           <input type="checkbox" value="In-Repair" name="Avaliablity">In-Repair <br>
+
+        </div>
+     </div>
+
+     <div>
+       <label style="font-weight: bold;">Asset price less than</label>
+       <div>₹<span id="price_value">100000</span></div>
+       <input type="range" id="price" min="0" max="100000" value="100000" oninput="document.getElementById('price_value').innerText = this.value;">
+      </div>
+
+     <div>
+       <label style="font-weight: bold;">Asset Location</label><br>
+       <input type="text" id="asset_location">
+     </div>
+
+     <div>
+        <label onclick="nameCheckboxes('condition')"style="cursor: pointer;"><p id="condition" style="font-weight: bold;">Asset Condition &#9660;</p></label>
+         <div id="conditionCheckboxes" style="display: none;">
+             <input type="checkbox" value="New" name="condition">New
+             <input type="checkbox" value="Average" name="condition">Average
+            <input type="checkbox" value="Bad" name="condition">Bad
+
+          </div>
+     </div>
+
+     <div>
+         <label onclick="nameCheckboxes('category')"style="cursor: pointer;"><p id="category" style="font-weight: bold;">Asset Category &#9660;</p></label>
+         <div id="categoryCheckboxes" style="display: none;">
+             {% for k in tool_category %}
+               <input type="checkbox" value="{{k}}" name="category">{{k}}
+ 
+            {% endfor %}
+          </div>
+      </div>
+ 
+ 
+     <button type="submit" onclick="Advancefilterfunction()" style="background-color: black; color: white;">Apply</button>
+      </div>
+   
+      <div id="sub_filter_box" >
+     <div id="sub_filter_box_data" class="sub_filter" style="display: none;">
+       
+      </div>
+
+      </div>
+ 
+    </div>
+  </div>
+</div>
+
+
+</body>
+
+
+<script>
+ 
+        let toolId = null;
+        let searchResults = [];
+        let currentPage = 1;
+        const itemsPerPage = 5;
+
+
+function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const selectedCheckboxes = {
+  'asset_name': new Set(),
+  'Avaliablity': new Set(),
+  'condition': new Set(),
+  'category': new Set(),
+};
+   
+function search_function(){
+  const input=document.getElementById("search")
+  console.log(input.value)
+  const searchValue = input.value.trim();
+
+  fetch('/asset_details/',{
+    method :'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body : JSON.stringify({'search':searchValue}),
+      })
+        .then(response => response.json())
+      .then(data => {
+          searchResults = data.searched_data
+          console.log(searchResults)
+          currentPage = 1;
+          renderTable();
+          pagiation();
+      })
+    }
+
+function renderTable(){
+      console.log('hello')
+
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+        const start = (currentPage - 1) * itemsPerPage;
+        const paginatedData = searchResults.slice(start, start + itemsPerPage);
+        console.log(paginatedData)
+    if (paginatedData.length === 0) {
+    const row = tableBody.insertRow();
+    const cell = row.insertCell();
+    console.log("nodata")
+    cell.colSpan = 15;
+    cell.textContent = "No results found.";
+    return;
+  }
+        paginatedData.forEach((item,index) => {
+          const row=tableBody.insertRow();
+          row.insertCell().textContent = index + 1;
+          row.insertCell().textContent = item.tool_id;
+          const toolNameCell = row.insertCell();
+          toolNameCell.textContent = item.tool_name;
+          toolNameCell.style.textTransform = "capitalize";
+          toolNameCell.style.fontWeight = "bold";
+          // row.insertCell().textContent = item.tool_name;
+          row.insertCell().textContent = item.tool_avaliability;
+
+          row.insertCell().textContent = item.tool_category;
+        if(item.tool_company){
+          const toolCompanyCell = row.insertCell();
+          toolCompanyCell.textContent = item.tool_company;
+          toolCompanyCell.style.textTransform = "capitalize";
+          // row.insertCell().textContent = item.tool_company;
+        }
+          else{
+              row.insertCell().textContent = "--";
+
+          }
+          if(item.tool_model){
+          row.insertCell().textContent = item.tool_model;}
+          else{
+                      row.insertCell().textContent = "--";
+
+          }
+          if(item.tool_price){
+          row.insertCell().textContent = item.tool_price;}
+          else{
+                      row.insertCell().textContent = "--";
+
+          }
+         if(item.tool_purchase){
+          row.insertCell().textContent = item.tool_purchase;}
+          else{
+                      row.insertCell().textContent = "--";
+
+          }
+          if(item.tool_warantty){
+          row.insertCell().textContent = item.tool_warantty;}
+          else{
+          row.insertCell().textContent = "--";
+
+          }
+          row.insertCell().textContent = item.tool_condition;
+          if(item.tool_supplier){
+          row.insertCell().textContent = item.tool_supplier;}
+          else{
+          row.insertCell().textContent = "--";
+
+          }
+          if(item.tool_remark){
+         
+          row.insertCell().textContent = item.tool_remark;}
+          else{
+          row.insertCell().textContent = "--";
+
+          }
+          if(item.tool_location){
+          row.insertCell().textContent = item.tool_location;}
+          else{
+          row.insertCell().textContent = "--";
+
+          }
+          const deleteCell = row.insertCell();
+         const delBtn = document.createElement("button");
+           delBtn.innerHTML = '<i class="fas fa-trash"></i>';
+          delBtn.style.background = "none";
+             delBtn.style.border = "none";
+             delBtn.style.fontSize = "20px";
+            delBtn.style.cursor = "pointer";
+          delBtn.onclick = () => deleteEmployee(item.tool_id);
+          deleteCell.appendChild(delBtn)  ;
+
+
+       
+          const editCell = row.insertCell();
+         
+          editCell.innerHTML = `
+                  <form action="/edit_tool/" method="POST">
+              <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+              <input type="hidden" name="tool_id" value="${item.tool_id}">
+              <input type="submit" class="fas" value=  "&#xf044;" style="background: none; border: none; font-size: 20px;" ></a>
+                   </form>
+          `;
+
+
+
+
+
+
+
+
+        });
+     
+   
+
+}
+
+function pagiation(){
+    console.log('helo')
+      const pagiation = document.getElementById('pagiation');
+  const totalPages = Math.ceil(searchResults.length / itemsPerPage);
+  let value ='';
+    if (currentPage >1){
+    console.log('helloif')
+    value += `
+    <button onclick="changePage(${currentPage - 1})" style="background: none; border: none; color: blue; font-size: 15px; "><</button>`;
+    }
+    value +=`<span style="margin: 0 10px;">Page ${currentPage} of ${totalPages}</span>`;
+  if (currentPage <totalPages ){
+    value +=
+    `<button onclick="changePage(${currentPage + 1})" style="background: none; border: none; color: blue; font-size: 15px;" > ></button>`;
+   
+  } pagiation.innerHTML=value
+   }
+ 
+ 
+function changePage(value){
+    currentPage=value;
+    renderTable();
+    pagiation();
+}
+
+
+function deleteEmployee(toolId) {
+        console.log("hello")
+        toolIdToDelete = toolId;
+        document.getElementById('deleteModal').style.display = 'block';
+    }
+ 
+ 
+function deleteTool(){
+      console.log(toolIdToDelete)
+     fetch('/delete_tool12/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ tool_id: toolIdToDelete })
+      })
+        .then(response => response.json())
+
+              .then(data => {
+                console.log("success")
+                console.log(data.success)
+                if(data.message){
+                  console.log("hello")
+                    const messageElement = document.getElementById('message1');
+                    messageElement.textContent = "Tool Deleted Successfully";
+
+                  setTimeout(function(){
+
+               
+                       window.location.href = '/asset_details/';
+
+                            },700);
+                 }
+                else{
+
+                }
+               
+                        // window.location.href = "/view_employee/";
+ // Handle errors
+
+               
+     
+           })
+      .catch(error => {
+        console.error('Delete failed:', error);
+      });
+   
+
+
+
+
+
+
+    }
+
+
+function filter_function(){
+  document.getElementById('displayOptions').style.display = 'block';
+
+}
+
+function Advancefilterfunction(){
+const selectedValues = Array.from(selectedCheckboxes['asset_name']);
+
+      const company = document.getElementById('asset_company')
+      const price = document.getElementById('price')
+     const Values = Array.from(selectedCheckboxes['Avaliablity']);
+
+const categoryValues = Array.from(selectedCheckboxes['category'])
+const conditionValues = Array.from(selectedCheckboxes['condition']);
+      const location = document.getElementById('asset_location')
+
+      console.log(location)
+      console.log(categoryValues)
+      console.log(conditionValues)
+
+
+
+       fetch('/filter-tool/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ name: selectedValues , company :company.value , price:price.value , avaliablity:Values , category:categoryValues
+          , condition : conditionValues , location : location.value
+         })
+      })
+        .then(response => response.json())
+      .then(data => {
+          searchResults = data.searched_data
+          console.log(searchResults)
+          currentPage = 1;
+            document.getElementById('displayOptions').style.display = 'None';
+
+          renderTable();
+          pagiation();
+      })
+}
+
+
+function closeModal() {
+      console.log("no")
+        document.getElementById('deleteModal').style.display = 'none';
+        toolIdToDelete = null;
+    }
+   
+function closefilter(){
+          document.getElementById('displayOptions').style.display = 'none';
+
+
+}
+   
+function nameCheckboxes(ans){
+    console.log(ans)
+    const nameDiv = document.getElementById('sub_filter_box_data');
+    nameDiv.innerHTML = '';
+    nameDiv.style.display = 'block';
+
+    let html = '';
+    if (ans === 'tool_list') {
+        {% for k in tool_list %}
+          html += `<label><input type="checkbox" value="{{k}}" name="asset_name" ${selectedCheckboxes['asset_name'].has('{{k}}') ? 'checked' : ''}>{{k}}</label><br>`;
+        {% endfor %}
+    } else if (ans === 'availability') {
+        ['Avaliable', 'Assigned', 'In-Repair'].forEach(value => {
+          html += `<label><input type="checkbox" value="${value}" name="Avaliablity" ${selectedCheckboxes['Avaliablity'].has(value) ? 'checked' : ''}>${value}</label><br>`;
+        });
+    } else if (ans === 'category') {
+        {% for k in tool_category %}
+          html += `<label><input type="checkbox" value="{{k}}" name="category" ${selectedCheckboxes['category'].has('{{k}}') ? 'checked' : ''}>{{k}}</label><br>`;
+        {% endfor %}
+    } else if (ans === 'condition') {
+        ['New', 'Average', 'Bad'].forEach(value => {
+          html += `<label><input type="checkbox" value="${value}" name="condition" ${selectedCheckboxes['condition'].has(value) ? 'checked' : ''}>${value}</label><br>`;
+        });
+    }
+
+    nameDiv.innerHTML = html;
+
+    // Add event listeners to update state
+    nameDiv.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+            const name = e.target.name;
+            const value = e.target.value;
+            if (e.target.checked) {
+                selectedCheckboxes[name].add(value);
+            } else {
+                selectedCheckboxes[name].delete(value);
+            }
+        });
+    });
+}
+
+function availabilityCheckboxes(){
+  const availabilityDiv = document.getElementById('sub_filter_box_data')
+         
+    if (availabilityDiv.style.display === "none") {
+      availabilityDiv.style.display = "block";
+      availabilityDiv.innerHTML =`hello`
+      const value = document.getElementById('availability')
+      value.innerHTML = `Asset Avaliability &#9650; `
+    }
+     else {
+      availabilityDiv.style.display = "none";
+      const value = document.getElementById('availability')
+      value.innerHTML = `Asset Avaliability &#9660; `
+     }
+}
+
+
+function conditionCheckboxes(){
+    const conditionDiv = document.getElementById('conditionCheckboxes')
+    if (conditionDiv .style.display === "none") {
+      conditionDiv .style.display = "block";
+      const value = document.getElementById('condition')
+      value.innerHTML = `Asset Condition &#9650; `
+    }
+     else {
+      conditionDiv .style.display = "none";
+      const value = document.getElementById('condition')
+      value.innerHTML = `Asset Condition &#9660; `
+     }
+
+}
+
+
+function categoryCheckboxes(){
+    const categoryDiv = document.getElementById('categoryCheckboxes')
+    if (categoryDiv .style.display === "none") {
+      categoryDiv .style.display = "block";
+      const value = document.getElementById('category')
+      value.innerHTML = `Asset Category &#9650; `
+    }
+     else {
+      categoryDiv .style.display = "none";
+      const value = document.getElementById('category')
+      value.innerHTML = `Asset Category &#9660; `
+     }
+
+}
+
+
+
+
+const myTimeout = setTimeout(myGreeting, 2000);
+function myGreeting() {
+  document.getElementById("msg").innerHTML = ""
+}
+
+   function myStopFunction() {
+  clearTimeout(myTimeout);
+}
+</script>
+</html>
+

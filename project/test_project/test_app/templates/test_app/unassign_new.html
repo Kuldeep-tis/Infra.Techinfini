@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration Form</title>
+    <style>
+.assign{
+    text-align: right;
+}
+    </style>
+</head>
+<body>
+
+<h2>Unassign asset</h2>
+        <a href="/dash">back</a>
+<p>{{data}}</p>
+<form action={% url 'unassign_new' %}  method="POST">
+    {% csrf_token %}
+    <div class="asssign">
+<label for="tool_unassigned"><h2>Tool id to unassign:</h2></label><br>
+<select name="tool_unassigned" id="tool_unassigned">
+             
+{% for k in tool %}
+            
+
+  <option>{{k.tool_id}}</option>
+  
+{% endfor %}
+</select>
+</div>
+
+<br>
+
+
+    
+    <button type="submit">submit</button>
+    
+</form>
+
+
+
+
+
+
+</body>
+</html>

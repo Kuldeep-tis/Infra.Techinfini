@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+   
+  <style>
+    
+
+
+            form {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 30px;
+            width: 500px;
+            margin-top: 120px;
+            
+          
+            
+        }
+
+    
+
+     .button1 {
+      padding: 10px 20px;
+      background-color: black;
+      color: white;
+      
+      
+    }
+
+
+
+    
+  </style>
+</head>
+
+ 
+     <a href="/"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;"></a>
+
+<p> </p>
+
+        
+    
+  
+<body>
+<p style="font-style: italic; text-align: center; font-size: 40px;">AssetTracker pro</p>
+  <form  action={% url 'login-all' %} method="post" >
+    {% csrf_token %}
+    {% if msg %}
+  <p style="color: red;">{{msg}}</p>
+    {% endif %}
+    <h1 style="width: 200px; padding: 10px; margin-left: 180px;">Login</h1>
+    <input type="text" name="username" placeholder="Username" required style="width: 200px; padding: 10px; margin-left: 120px;"> <br><br><br>
+    <!-- <label style="width: 200px; padding: 10px; margin-left: 120px;">Password</label><br> -->
+    <input type="password" name="password" placeholder="Password" required style="width: 200px; padding: 10px; margin-left: 120px;"><br><br>
+    <button type="submit" style="width: 100px; padding: 10px; margin-left: 180px;" class="button1">Sign in</button>
+    <a href="/register_user" style="display: block; margin-top: 15px; color: black; margin-left: 140px;">Don't have an account?Sign Up</a>
+         
+
+  </form>
+</body>
+</html>

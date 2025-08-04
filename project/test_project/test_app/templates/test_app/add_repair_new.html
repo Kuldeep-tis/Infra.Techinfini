@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration Form</title>
+     <style>
+    
+
+         form {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-width: 800px;
+            margin: 20px auto;
+            
+            
+        }
+
+
+
+    .login-box {
+      
+      padding: 10px;
+      
+      border-radius: 8px;
+      
+      text-align: center;
+    }
+
+    .login-box input,select {
+      width: 20%;
+      padding: 7px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border-color: black;
+    }
+
+    .login-box button {
+      padding: 10px 20px;
+      background-color: black;
+      color: white;
+      
+    }
+
+    
+
+    .login-box a {
+      display: block;
+      margin-top: 15px;
+      color: black
+    }
+  </style>
+</head>
+<body>
+       {% include 'test_app/navbar.html' %}
+    <!-- <a href="/repair_table"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;"></a> -->
+
+
+      {% if msg %}
+      <p>{{msg}}</p>
+      {% endif %}
+
+
+
+<form class="login-box" action="{% url 'add_repair' %}" method="POST">
+    {% csrf_token %}
+    <p style="color: red;"> {{value.msg}}</p>
+
+    <h2>Repair form</h2>
+        
+
+<div style="display: flex; gap: 16rem;">
+   <div>
+            <label>Select Tool id:</label><br>
+                            <input type="text" name="tool_id" value="{{tool_id}}" readonly style=" padding: 10px; width: 200px; margin-left: 70px;">
+   
+<br>
+<br>
+   </div>
+    <div>
+
+
+
+
+    <label>Repair Cost</label><br>
+    <input type="number"  name="cost"  required style="width: 200px;"><br><br>
+    </div>
+</div>
+
+<div style="display: flex; gap: 16rem;">
+  <div>
+    <label>Return Date</label><br>
+    <input type="date"  name="date"  required style=" padding: 10px; width: 200px; margin-left: 70px;"><br><br>
+  </div>
+   <div>
+    <label>Repair Person</label><br>
+    <input type="text"  name="repair_person" required style="width: 210px;"><br><br>
+   </div>
+</div>
+
+    
+
+    
+    <button type="submit">Submit</button>
+
+
+</form>
+
+
+</body>
+</html>
+

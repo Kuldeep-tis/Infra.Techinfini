@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+   
+  <style>
+    
+
+
+            form {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 30px;
+            width: 500px;
+            bottom: 200px;
+        }
+
+    .button1 {
+      padding: 10px 20px;
+      background-color: black;
+      color: white;
+      
+      
+    }
+
+
+
+    
+  </style>
+</head>
+
+     <a href="/"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;"></a>
+<p> </p>
+
+
+
+     
+<body>
+ <p style="font-style: italic; text-align: center; font-size: 40px;">AssetTracker pro</p>
+
+  <form  action="{% url 'login_superadmin' %}" method="POST" style="margin-top: 100px;">
+    {% csrf_token %}
+            {% if messages %}
+        
+        
+                {% for message in messages %}
+                 <p id="msg" style="color: red; text-align: center;">{{ message }}</p>  
+{% endfor %}
+        
+        
+    {% endif %}
+    <p style="text-align: center; color: red;">{{message}}</p>
+  
+    <h1 style=" padding: 10px; margin-left: 100px;">SuperAdmin Login</h1>
+    <input type="text" name="supername" placeholder="Username" required style="width: 200px; padding: 10px; margin-left: 120px;"><br><br>
+    <input type="password" name="password" placeholder="Password" required style="width: 200px; padding: 10px; margin-left: 120px;"><br><br>
+    <button type="submit" style="width: 100px; padding: 10px; margin-left: 180px;" class="button1">Login</button>
+    <a href="/" style="display: block; margin-top: 15px; color: black; margin-left: 140px;">if you are not SuperAdmin? back</a>
+         
+
+  </form>
+</body>
+</html>
