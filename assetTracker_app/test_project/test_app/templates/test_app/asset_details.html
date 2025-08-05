@@ -700,7 +700,8 @@ function displayCheckboxes(message){
                 nameDiv.style.display = 'block';
                 html += `<label style="font-weight: bold; font-size: 20px;">Asset Name </label><br><br>`
                {% for k in top_five_tools %}
-                  html += `<label><input type="checkbox" style="text-transform: capitalize;" value="{{k}}" name="asset_name" ${selectedCheckboxes['asset_name'].has('{{k}}') ? 'checked' : ''}>{{k}}</label><br>`;
+                  html += `<label><input type="checkbox"  value="{{k}}" name="asset_name" ${selectedCheckboxes['asset_name'].has('{{k}}') ? 'checked' : ''}>
+                  <span style="text-transform: capitalize;">{{k}}</span></label><br>`;
                {% endfor %}
                {% if len_of_tools > 5 %}
                 html+=`
