@@ -1,0 +1,459 @@
+<!-- At the top of your page add load static -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<style>
+   table, td, th {
+      border: 1px solid;
+      border: none;
+  
+    }
+  tr{
+     height:50px;
+  }
+      td{
+      border-bottom: 1px solid gray;
+
+    }
+
+  table {
+     width: 100%;
+     border-collapse: collapse;
+     text-align: center;
+     height: 100px;
+     row-gap: 50px;
+     margin-left: auto;
+     margin-right: auto;
+
+  }
+              
+
+          .add-button {
+            position: relative;
+             /* bottom: 210px; */
+            /* right: 500px;  */
+            width: 60px;
+            height: 60px;
+            background-color: #5e7283;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 60px;
+            font-size: 40px;
+            font-weight: bold;
+            text-decoration: none;
+            
+            margin-top: 10px;
+            
+        }
+  .deleteModal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+
+   }
+
+   .deleteModalContent {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 10px;
+            text-align: center;
+   }
+
+  .deleteModal button {
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 8px 20px;
+   }
+
+
+
+
+</style>
+</head>
+<body> 
+
+
+       {% include 'test_app/navbar.html' %}
+       
+      <a href="/dashboard"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; 
+        padding: 5px; background-color: black; color: white;">
+      </a>
+        <a href="/repair-created-by-user" style="float: right; margin-top: 50px; font-size: 20px;">Repair Request</a>
+
+
+        {% if messages %}
+              {% for message in messages %}
+                 <p id="msg" style="font-weight: bold;">{{ message }}</p> 
+              {% endfor %} 
+       {% endif %}
+       <p id="message1"></p>
+<br>
+    <button type="button" style=   "padding: 3px; width: 80px; float: right; margin-top: 50px;" onclick="myFunction()">Search</button>
+
+  <input type="text" id="filter" name="filter"   placeholder="Search Here" style="float: right; margin-top: 50px; padding: 3px;">
+<h1 class='list' style="text-align: center;">Repair Details</h1>
+
+              
+<table>
+            
+
+  
+  <thead style="background-color:#eee;">
+    <tr>
+                <th>Serial no.</th>
+                <th>Tool Name</th>
+                
+                <th>Tool ID</th>
+                <th>Repair Cost</th>
+                <th>Given Date</th>
+                <th>Return Date</th>
+
+                <th>Tool User</th>
+                <th>Tool User ID</th>
+                <th>Repair Person</th>
+                <!-- <th>Repair Status</th> -->
+                <th>Repair Created By</th>
+                <th colspan="2">Action</th>
+
+                
+    </tr>    
+  </thead>
+    <tbody  id="tableBody"  style="table-layout: fixed; ">
+      {% if page_obj.object_list  %}
+           {% for k in page_obj.object_list %}
+        
+           
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td style="text-transform: capitalize; font-weight: bold;">{{k.name}}</td>
+                <td>{{k.repair_tool_id}}</td>
+                <td>{{k.repair_cost}}</td>
+                <td>{{k.repair_created_at}}</td>
+                <td>{{k.return_date}}</td>
+                {% if k.tool_user %}
+                   <td style="text-transform: capitalize;" >{{k.tool_user}}</td>
+                {% else %}
+                   <td>--</td>
+                {% endif %}
+                {% if k.tool_user_id %}
+                   <td>{{k.tool_user_id}}</td>
+                {% else %}
+                   <td>--</td>
+                {% endif %}
+                {% if k.repair_person %}
+                <td style="text-transform: capitalize;">{{k.repair_person}}</td>
+                {% else %}
+                <td>--</td>
+                {% endif %}
+                
+                <td>{{k.repair_created_by}}</td>
+                
+                                  <td> 
+                          <button onmouseover="myRepair('{{k.repair_tool_id}}')" style="background-color:  #433f3f; color: white;" >Repair Done</button>
+
+
+                   </td>  
+               
+
+                     
+
+               <td> <form action="{% url 'edit-repair-id' %}" method="POST">
+                     {% csrf_token %}
+                       <input type="hidden" name="tool_id" value="{{k.repair_tool_id}}">
+                       <a href="{% url 'edit-repair-id' %}"><input type="submit" class="fas" value=  "&#xf044;" style="background: none; border: none; font-size: 20px;"></a> </form>
+
+                      </td>  
+               
+                
+               
+              {% endfor %}
+                
+            
+            </tr>
+        {% else %}
+            <tr>
+               <td colspan="11">
+                <p>Nothing In Repair</p>
+               </td>
+            </tr>
+         {% endif %}
+    </tbody>
+                                    
+
+            
+        
+</table>
+<div>
+<a href="{% url 'add-repair' %}" style="float: right; margin-top: 200px;"><input type="submit" value="+" class="add-button" style="margin-top: 20px;" ></a>
+</div>
+
+<div id="pagiation">
+    
+        {%if page_obj.has_previous %} 
+            <a href="?page={{page_obj.previous_page_number}}" style="color: blue; text-decoration: none;"><</a> 
+        {% endif %}
+        <span>Page {{page_obj.number}} of {{total}}</span> 
+
+        {%if page_obj.has_next %} 
+            <a href="?page={{page_obj.next_page_number}}" style="color: blue; text-decoration: none;">></a> 
+        {% endif %}
+    
+</div>
+
+
+<div id="sample" class="deleteModal">
+      <div id="deleteModalContent" class="deleteModalContent">
+        <h2>Repair Done</h2>
+        <p>Are you sure you want to mark Repair Done</p>
+        <button onclick="repairTool()">Mark As Done</button>
+        <button  onclick="document.getElementById('sample').style.display='none'" id="modal">No</button>
+    </div>
+
+</div>
+</body>
+<script>
+
+    let searchResults = [];
+    let currentPage = 1;
+    const itemsPerPage = 1;
+
+   function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+
+    function myFunction() {
+      const input = document.getElementById("filter");
+      const filterValue = input.value.trim();
+
+      fetch('/repair-table/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ filter: filterValue })
+      })
+      .then(response => response.json())
+      .then(data => {
+         console.log(data.searched_data)
+        searchResults = data
+        console.log(searchResults)
+        currentPage = 1;
+        renderTable();
+        pagiation();
+
+      })
+    }
+ 
+    function renderTable(){
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+
+
+      const start = (currentPage - 1) * itemsPerPage;
+    const paginatedData = searchResults.slice(start, start + itemsPerPage);
+    console.log(paginatedData)
+    if (paginatedData.length === 0) {
+    const row = tableBody.insertRow();
+    const cell = row.insertCell();
+    cell.colSpan = 11;
+    cell.textContent = "No results found.";
+    return;
+  }
+
+          paginatedData.forEach((item, index) => {
+
+          const row = tableBody.insertRow();
+          row.insertCell().textContent = index + 1;
+          const toolNameCell = row.insertCell();
+          toolNameCell.textContent = item.name;
+          toolNameCell.style.textTransform = "capitalize";
+          toolNameCell.style.fontWeight = 'bold';
+          // console.log(item.name)
+          row.insertCell().textContent = item. repair_tool_id;
+          row.insertCell().textContent = item.repair_cost;
+          row.insertCell().textContent = item.repair_created_at;
+
+          row.insertCell().textContent = item.return_date;
+          
+          if (item.tool_user){
+          const employeeNameCell = row.insertCell();
+          employeeNameCell.textContent = item.tool_user;
+          employeeNameCell.style.textTransform = "capitalize";
+        //  row.insertCell().textContent = item.tool_user;
+        }
+         else{
+         row.insertCell().textContent = "--"; }
+    
+         if(item.tool_user_id){
+          row.insertCell().textContent = item.tool_user_id;}
+          else{
+            row.insertCell().textContent="--";
+          }
+          if(item.repair_person){
+          const repairNameCell = row.insertCell();
+          repairNameCell.textContent = item.repair_person;
+          repairNameCell.style.textTransform = "capitalize";
+          // row.insertCell().textContent = item.repair_person;
+        }
+          else{
+            row.insertCell().textContent="--";
+          }
+          row.insertCell().textContent = item.repair_created_by;
+
+          const repairCell = row.insertCell();
+          const repairBtn = document.createElement("button");
+          repairBtn.style.backgroundColor = '#433f3f';
+          repairBtn.style.color = 'white';
+          repairBtn.textContent = "Repair Done";
+          repairBtn.onmouseover = () => myRepair(item.repair_tool_id);
+          repairCell.appendChild(repairBtn);
+
+          const editCell = row.insertCell();
+          const form = document.createElement("form");
+          form.method = "POST";
+          form.action = "/edit-repair-id/";
+          form.innerHTML = `
+            <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+            <input type="hidden" name="tool_id" value="${item.repair_tool_id}">
+            <input type="submit"  class="fas" value=  "&#xf044;" style="background: none; border: none; font-size: 20px;"">
+          `;
+          editCell.appendChild(form);
+
+
+
+
+        });
+      
+
+    }
+
+function pagiation(){
+  const pagiation = document.getElementById('pagiation');
+  const totalPages = Math.ceil(searchResults.length / itemsPerPage);
+  console.log('hello')
+  console.log(totalPages)
+  console.log(currentPage)
+  let value ="";
+  if (currentPage >1){
+    console.log('helloif')
+    value += `
+    <button onclick="changePage(${currentPage - 1})" style="background: none; border: none; color: blue; font-size: 15px; "><</button>`;
+    }if(totalPages === 0){
+    value += `<span style="margin: 0 10px;">Page ${currentPage} of 1 </span>`;
+
+    }else{
+    value += `<span style="margin: 0 10px;">Page ${currentPage} of ${totalPages}</span>`;
+    }
+  if (currentPage <totalPages ){
+    value += 
+    `<button onclick="changePage(${currentPage + 1})"style="background: none; border: none;color: blue;font-size: 15px;" >></button>`;
+    
+  } pagiation.innerHTML=value
+}
+
+function changePage(value){
+    currentPage=value;
+    renderTable();
+    pagiation();
+}
+
+
+
+
+    function myRepair(value) {
+        console.log(value)
+        toolIdToDelete = value;
+        document.getElementById('sample').style.display = 'block';
+        
+        
+      }
+
+    function repairTool(){
+
+             console.log(toolIdToDelete)
+             fetch('/unrepair-tool/', {
+                method: 'POST',
+               headers: {
+               'Content-Type': 'application/json',
+               'X-CSRFToken': getCookie('csrftoken')
+                },
+               body: JSON.stringify({ tool_id: toolIdToDelete, flag:"flag" })
+             })
+        .then(response => response.json())
+
+              .then(data => {
+                console.log("success")
+                console.log(data.success)
+                if(data.message){
+                  console.log("hello")
+                    const messageElement = document.getElementById('message1');
+                    messageElement.textContent = "Repair Done Successfully";
+
+                  setTimeout(function(){
+
+                
+                       window.location.href = data.redirect_url;
+
+                            },700);
+                }
+                else{
+                   }
+              })
+         .catch(error => {
+           console.error('Delete failed:', error);
+         });
+    
+        }
+       
+    function closeModal() {
+      console.log("no")
+        document.getElementById('sample').style.display = 'none';
+        toolIdToDelete = null;
+    }
+var modal = document.getElementById('sample');
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+  const myTimeout = setTimeout(myGreeting, 2000);
+
+function myGreeting() {
+  document.getElementById("msg").innerHTML = ""
+}
+
+function myStopFunction() {
+  clearTimeout(myTimeout);
+}
+
+</script>
+        </html>
+    

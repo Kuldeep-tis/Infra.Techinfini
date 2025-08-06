@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration Form</title>
+    <style>
+          
+ form {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-width: 900px;
+            margin: 30px auto;
+            margin-top: 80px;
+           
+        }
+
+    .login-box {
+      
+      padding: 10px;
+      
+      border-radius: 8px;
+      
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-box input,select {
+      width: 20%;
+      padding: 7px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border-color: black;
+    }
+
+
+
+    
+
+    .login-box a {
+      display: block;
+      margin-top: 15px;
+      color: black
+    }
+    </style>
+</head>
+<body>
+
+{% include 'test_app/navbar.html' %}
+
+    <a href="/view-tool"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;"></a>
+
+   <a href="/view-tool/"><input type="submit" value="Details" style="width: 200px; float: right; margin-top: 20px; padding: 10px;"> </a>
+
+<p>{{value}}</p>
+
+<form action="/assign-tool12/" method="POST" >
+    {% csrf_token %}
+    {% if messages %}
+      {% for message in messages %}
+       <p style="text-align: center; color: red;">{{message}}</p>
+       {% endfor %}
+    {% endif %}
+    <h1 style="text-align: center;">Assign Asset</h1>
+
+
+
+
+<div  style="display: flex; margin-left: 480px;">
+  <div>
+     <input type="text"  id="dropdownSearch" placeholder="Search..." style="margin-left: 85px; font-weight: bold;" >
+  </div>
+  <div>
+      <button type="button" onclick="search()" style="margin-top: 1px; width: 80px; padding: 1px;"  >search</button> 
+
+  </div>
+</div><br>
+<div style="display: flex; gap: 17rem;">
+
+
+
+        <div>
+                <label style="margin-left: 100px; font-weight: bold; margin-top: 10px;">Tool id to assign:</label><br><br>
+                <input type="text" readonly  value="{{tool_name}}({{tool}}) " style="width: 250px; margin-left: 50px; padding: 13px;">
+                <input type="text" hidden name="tool_assign" value="{{tool}}" >
+                <input type="text" hidden name="message" value="{{message}}">
+        </div>
+        <div>
+            <label style="margin-left: 40px; font-weight: bold;">Employee id:</label><br>
+                     <select id="showDropdown" name="employee_code" onclick="valueSelected()" style="width: 270px; margin-left: -40px; padding: 13px;" 
+                     required >
+
+
+
+                      {% for k in employee %}
+                           <option value="{{k.employee_code}}" id="option"  >{{k.employee_name}} ({{k.employee_code}})</option>
+                      {% endfor %}
+                    </select>
+        </div>
+</div>
+<br>
+<br>
+    <div class="assign-date">
+        <label style="margin-left: 370px; font-weight: bold;">Assigned date:</label><br><br>
+        <input type="date" name="date" id="date" required style="width: 350px; padding: 7px; margin-left: 250px;">
+    </div>
+    <br>
+    <br>
+    <button type="submit" style=" width: 100px; padding: 10px; margin-left: 370px; background-color: black;color: white;">Submit</button>
+    <br>
+    <br>
+</form>
+
+</body>
+</html>
+<script>
+
+
+    function valueSelected(id){
+      const input=document.getElementById('showDropdown')
+      console.log(input.value)
+      const tool=document.getElementById('dropdownSearch')
+     tool.value=input.value
+    }
+        
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+      
+
+    function newfunction(){
+        console.log("hello")
+    }
+    
+
+        function search(){
+            console.log("hello")
+          const value=document.getElementById('dropdownSearch')
+          console.log(value.value)
+          fetch('/search-employee/',{
+                method :'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body : JSON.stringify({'search':value.value}),
+
+          })
+              .then(response => response.json())
+              .then(data => {
+                console.log('hello')
+
+                const dropdown = document.getElementById('showDropdown');
+                dropdown.innerHTML=''
+                for (let i = 0; i < data.length; i++) {
+                    const option = document.createElement('option');
+                    option.textContent = data[i]['employee_name']+"("+data[i]['employee_code']+")"
+                    option.value = data[i]['employee_code']
+                    console.log(data[i]['employee_code'])
+                    dropdown.appendChild(option);
+                  }
+                      })
+          }
+ 
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+    const dateInput = document.getElementById("date");
+
+   dateInput.valueAsDate = new Date();
+
+</script>

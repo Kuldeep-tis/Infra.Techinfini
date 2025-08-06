@@ -1,0 +1,428 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    table, td, th {
+      border: 1px solid;
+      border: none;
+      
+    
+
+    }
+    th{
+      text-align: left;
+      
+    }
+
+    tr {
+      height: 50px;
+      
+    }
+    td{
+      border-bottom: 1px solid gray;
+      text-align: left;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+      
+    }
+
+    ul {
+      list-style-type: none;
+      margin: -15px;
+      padding: 0;
+      overflow: hidden;
+      background-color: #333;
+    }
+
+    li {
+      float: right;
+    }
+
+    li a {
+      display: block;
+      color: white;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+    }
+
+  
+
+    button {
+      padding: 5px 10px;
+      margin: 2px;
+      cursor: pointer;
+
+    }
+        .deleteModal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+
+        }
+
+        .deleteModalContent {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .deleteModal button {
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 8px 20px;
+        }
+
+  </style>
+
+</head>
+<body >
+
+
+
+{% include 'test_app/navbar.html' %}
+    <a href="/dashboard"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;"></a>
+    <p id="message"></p>
+  {% if messages %}
+    {% for message in messages %}
+      <p id="msg">{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+  <p id="message1"></p>
+  <br>
+  <a  href="{% url 'add-employee12' %}" style="float: right;">
+    <button type="submit" style="width: 200px; padding: 10px;">Add Employee</button> 
+  </a>
+<br><br><br>
+  
+    <button type="button" style=   "padding: 3px; width: 80px; float: right; margin-top: 30px;" onclick="myFunction()">Search</button>
+
+    <input type="text" id="filter" name="filter"   placeholder="Search Here" style="float: right; margin-top: 30px; padding: 3px;">
+  
+
+    <h1 class='list' style="text-align: center;">Employee Details</h1>
+<table id="dataTable" >
+    <thead style="background-color: #eee;">
+      <tr>
+        <th style="text-align: center;">Serial No.</th>
+        <th>Employee Name</th>
+        <th>Contact</th>
+        <th>Email</th>
+        <th>Code</th>
+        <th>Team</th>
+        <th>Department</th>
+        <th style="text-align: left;" colspan="2">Action</th>
+        
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+              {% for k in page_obj.object_list %}
+      <tr>
+        <td style="text-align: center;">{{ forloop.counter }}</td>
+        
+        <td> <form action="{% url 'search' %}" method="POST">
+             {% csrf_token %}
+             <input type="hidden" name="tool_id" value="{{k.employee_code}}">
+              <input type="submit" value="{{k.employee_name}}" style="background: none; border: none; color: black; font-size: medium; 
+              text-transform: capitalize; font-weight: bold; cursor: pointer; text-decoration: underline;"> </form>
+        </td>
+        <td>{{ k.employee_contact }}</td>
+        <td>{{ k.employee_email }}</td>
+        <td>{{ k.employee_code }}</td>
+        <td>{{ k.team_name }}</td>
+        <td>{{ k.employee_department }}</td>
+        <td>
+          <div style="display: flex; gap: 1rem; left: 10px; float: left;">
+            <div>
+
+
+              <button onclick="del('{{ k.employee_code }}')" class="fas" style="background: none; border:none; font-size:20px; cursor:pointer;"><i class="fas fa-trash"></i></button>
+            </div>
+            <div>
+
+          
+              <form action="{% url 'edit-employee' %}" method="POST">
+                {% csrf_token %}
+                 <input type="hidden" name="employee_id" value="{{ k.employee_code }}">
+                 <input type="submit" class="fas" value=  "&#xf044;" style="background: none; border: none; font-size: 20px; margin-top: 5px;">
+             </form>
+            </div>
+          </div>
+        </td>
+      
+      </tr>
+      {% endfor %}
+    </tbody>
+</table>
+
+<br>
+
+
+<div id="pagiation">
+    
+        {%if page_obj.has_previous %} 
+            <a href="?page={{page_obj.previous_page_number}}" style="color: blue; text-decoration: none;"><</a> 
+        {% endif %}
+        <span>Page {{page_obj.number}} of {{total}}</span> 
+
+        {%if page_obj.has_next %} 
+            <a href="?page={{page_obj.next_page_number}}" style="color: blue; text-decoration: none;">></a> 
+        {% endif %}
+    
+</div>
+
+<div id="deleteModal" class="deleteModal">
+    <div id="deleteModalContent" class="deleteModalContent">
+        <h2>Confirm Delete</h2>
+        <p>Are you sure you want to delete this tool?</p>
+        <button onclick="deleteEmployee()">Yes</button>
+        <button onclick="closeModal()">No</button>
+    </div>
+</div>
+
+
+</body>
+
+
+  <script>
+
+    let employeeIdToDelete = null;
+    let searchResults = [];
+    let currentPage = 1;
+    const itemsPerPage = 5;
+
+function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+
+function myFunction() {
+      const input = document.getElementById("filter");
+      const filterValue = input.value.trim();
+
+      fetch('/view-employee/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ filter: filterValue })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(filterValue)
+        searchResults = data.searched_data
+        currentPage = 1;
+        renderTable();
+        pagiation();
+
+
+      })
+
+    }
+
+
+function renderTable(){
+      const tableBody = document.getElementById('tableBody');
+      tableBody.innerHTML = '';
+      const start = (currentPage - 1) * itemsPerPage;
+    const paginatedData = searchResults.slice(start, start + itemsPerPage);
+    if (paginatedData.length === 0) {
+    const row = tableBody.insertRow();
+    const cell = row.insertCell();
+    cell.colSpan = 9;
+    cell.textContent = "No results found.";
+      cell.style.textAlign = 'center';
+    return;
+  }
+    paginatedData.forEach((item, index) => {
+    const row = tableBody.insertRow();
+    row.insertCell().textContent =  index + 1;
+
+    const nameCell = row.insertCell();
+    const name = document.createElement("form");
+    name.method = "POST";
+    name.action = "/search/";
+    name.innerHTML = `
+            <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+            <input type="hidden" name="tool_id" value="${item.employee_code}">
+            <input type="submit" value="${item.employee_name}" style="background: none; border: none; color: black;font-weight: bold; text-decoration: underline; font-size: medium; text-transform: capitalize;">
+          `;
+          nameCell.appendChild(name);
+
+    row.insertCell().textContent = item.employee_contact;
+    row.insertCell().textContent = item.employee_email;
+    row.insertCell().textContent = item.employee_code;
+    row.insertCell().textContent = item.team_name;
+    row.insertCell().textContent = item.employee_department;
+
+    const deleteCell = row.insertCell();
+    const delBtn = document.createElement("button");
+    delBtn.innerHTML = '<i class="fas fa-trash"></i>';
+    delBtn.style = "background: none; border: none; font-size: 20px; cursor: pointer;";
+    delBtn.onclick = () => del(item.employee_code);
+    deleteCell.appendChild(delBtn);
+
+    const editCell = row.insertCell();
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "/edit_employee/";
+    form.innerHTML = `
+      <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+      <input type="hidden" name="employee_id" value="${item.employee_code}">
+      <input type="submit" class="fas" value="&#xf044;" style="background: none; border: none; font-size: 20px;">
+    `;
+    editCell.appendChild(form);
+  });
+}
+
+
+function pagiation(){
+  const pagiation = document.getElementById('pagiation');
+  const totalPages = Math.ceil(searchResults.length / itemsPerPage);
+  
+
+  console.log('hello')
+  console.log(totalPages)
+  console.log(currentPage)
+  let value ="";
+  if (currentPage >1){
+    console.log('helloif')
+    value += `
+    <button onclick="changePage(${currentPage - 1})" style="background: none; border: none; color: blue; font-size: 15px; "><</button>`;
+    } if (totalPages === 0){
+    value += `<span style="margin: 0 10px;">Page ${currentPage} of 1 </span>`;
+
+    }
+    else{
+    value += `<span style="margin: 0 10px;">Page ${currentPage} of ${totalPages}</span>`;}
+  if (currentPage <totalPages ){
+    value += 
+    `<button onclick="changePage(${currentPage + 1})"style="background: none; border: none;color: blue;font-size: 15px;" >></button>`;
+    
+  }
+  
+  pagiation.innerHTML=value
+}
+
+
+function changePage(value){
+    currentPage=value;
+    renderTable();
+    pagiation();
+}
+
+  
+function del(employeeCode){
+        console.log("hello")
+        employeeIdToDelete = employeeCode;
+        document.getElementById('deleteModal').style.display = 'block';
+
+  }
+
+
+function deleteEmployee() {
+      console.log("inside delete employee")
+      console.log(employeeIdToDelete )
+
+      fetch('/delete-employee12/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ employee_id: employeeIdToDelete })
+      })
+        .then(response => response.json())
+
+              .then(data => {
+                console.log("success")
+                console.log(data.success)
+                if(data.success){
+                    
+                    if(data.redirect_url){
+                      
+                    const messageElement = document.getElementById('message1');
+             messageElement.textContent = "Employee Deleted Successfully";
+
+                                     setTimeout(function(){
+
+                
+                window.location.href = data.redirect_url;
+
+                            },700);
+
+              
+
+                    }
+                }
+                else{
+                        // window.location.href = "/view_employee/";
+ // Handle errors
+
+                }
+      
+           })
+      .catch(error => {
+        console.error('Delete failed:', error);
+      });
+    }
+  
+
+function closeModal() {
+      console.log("no")
+        document.getElementById('deleteModal').style.display = 'none';
+        toolIdToDelete = null;
+    }
+
+
+const myTimeout = setTimeout(myGreeting, 2000);
+
+
+function myGreeting() {
+  document.getElementById("msg").innerHTML = ""
+}
+
+
+function myStopFunction() {
+  clearTimeout(myTimeout);
+}
+
+  
+  
+  
+  </script>
+
+
+
+</html>
