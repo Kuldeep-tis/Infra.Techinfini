@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'test_app',
+    'assetTracker_app',
 ]
 
 MIDDLEWARE = [
@@ -61,7 +61,7 @@ AUTHENTICATION_BACKENDS = (
 
 
 
-ROOT_URLCONF = 'test_project.urls'
+ROOT_URLCONF = 'assetTracker_project.urls'
 
 TEMPLATES = [
     {
@@ -80,7 +80,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'test_project.wsgi.application'
+WSGI_APPLICATION = 'assetTracker_project.wsgi.application'
 
 
 # Database

@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path , include
-from test_app import views
+from assetTracker_app import views
 from django.conf import settings
 from django.conf.urls.static import static
 
