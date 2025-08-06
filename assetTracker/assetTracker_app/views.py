@@ -166,7 +166,7 @@ def login_all(request):
         
         if superuser.objects.filter(username=username, password=password).exists():
             request.session['name'] = username
-            return redirect('dashboard_super')
+            return redirect('dashboard-super')
 
         
         if Employee.objects.filter(employee_code=username, employee_password=password).exists():
@@ -222,6 +222,7 @@ def dashboard(request):
         
              
              total_asset = Tools.objects.count() 
+             print(total_asset)
              total_employee = Employee.objects.count() 
              assigned_tool = Tools.objects.filter(tool_avaliability="Assigned").count()
              repair_asset=Repair.objects.filter(repair_status = 'Repair Created').count()
@@ -263,9 +264,10 @@ def add_tool12(request):
  if (request.session.get('name')):
     # id = 0
     last_object=Tools.objects.order_by('-id').first()
-    
-    
-    id = last_object.id +1
+    if last_object :
+      id = last_object.id +1
+    else : 
+        id = 1
 
     if request.method == 'POST':
      
@@ -1172,7 +1174,7 @@ def change(request):
           return redirect('dashboard_super')
         else:
                       User.objects.filter(username=username).update(is_active=False)
-                      return redirect('dashboard_super')
+                      return redirect('dashboard-super')
  
 
 @login_required
@@ -1231,7 +1233,7 @@ def asset_details(request):
   company = Tools.objects.values('tool_company').distinct()
   max_ = Tools.objects.aggregate(Max('tool_price'))
   print("max_price")
-  max_price = max_['tool_price__max']+10000
+  max_price = max_['tool_price__max']
   if max_price == None :
       max_price = 0
   
@@ -1257,7 +1259,7 @@ def asset_details(request):
       d=d+1
       company_list.append(user)
   
-  company_list.remove('')
+#   company_list.remove('')
   company_list.sort()
 
   for l in category :
@@ -1287,7 +1289,7 @@ def asset_details(request):
      user = location[c]['tool_location']
      c = c+1
      location_list.append(user)
-  location_list.remove('')
+#   location_list.remove('')
   len_of_tool_list = len(tool_list)
   len_of_tool_category =len(category_list)
   len_of_location = len(location_list)
