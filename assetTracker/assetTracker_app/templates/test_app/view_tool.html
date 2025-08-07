@@ -1,0 +1,505 @@
+<!-- At the top of your page add load static -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<style>
+   table, td, th {
+      border: 1px solid;
+      border: none;
+      
+      border-spacing: 10px;
+
+   }
+   tr{
+        height:50px;
+
+    }
+    td{
+      border-bottom: 1px solid gray;
+
+    }
+
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    
+  }
+
+  .deleteModal {
+           position: absolute;
+           display: none; 
+           top: 0%;
+           left: 0;
+           background-color: white;
+           border: 1px solid #ccc;
+           z-index: 100;
+           padding: 5px;
+           border-radius: 5px;
+          
+
+
+
+   }
+
+
+   .container{
+    position: relative;
+    display: inline-block;
+   }
+
+ 
+
+
+
+
+</style>  
+</head>
+<body >
+
+        
+
+
+
+{% include 'test_app/navbar.html' %}
+    <a href="/dashboard"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;"></a>
+
+       {% if messages %}
+        
+           {% for message in messages %} 
+                
+                 <p id="msg" style="text-transform: capitalize; font-weight: bold;">{{ message}}</p>  
+                
+            {% endfor %}  
+        
+    {% endif %}
+    <p id="message1"></p>
+<br>
+
+
+
+
+
+<button type="button"  style="float: right; border-radius: 50%; height: 40px; width: 40px;margin-top: 100px; "  onclick="input_bar_function()"> <i class="fas fa-magnifying-glass"></i></button>      
+
+<input type="text" id="search" name="search" oninput="search_function()" placeholder="Search Here" style="float: right; margin-top: 110px; padding: 4px; display: none; border-radius: 15px;"><br><br>
+
+
+<h1 class='list' style="position: fixed; margin-left: 40%;">Asset Details</h1>
+
+
+<table>
+ 
+  <thead style="background-color: #eee">  
+     <tr >    
+                <th> Serial no.</th>
+                <th>Asset Name</th>
+                
+                <th>Asset Id</th>
+                <th>Assigned To</th>
+                <th>Asset Avaliability</th>
+                <th>Asset Category</th>
+                <th>Assigned Employee ID</th>
+          
+                <th colspan="2">Action</th>
+                
+                
+                
+                
+     </tr>
+  </thead>
+
+  <tbody id="tableBody">
+
+{% for k in page_obj.object_list %}        
+           
+      <tr>
+                <td>{{forloop.counter}}</td>
+                <td style="text-transform: capitalize; font-weight: bold;">{{k.tool_name}}</td>
+                <td>{{k.tool_id}}</td>
+             {% if k.tool_assigned != None %}
+                <td> <form action="{% url 'search' %}" method="POST">
+                     {% csrf_token %}
+                    <input type="hidden" name="tool_id" value="{{k.assigned_employee_id}}">
+                    <input type="hidden" value="disable" name="disable">
+
+                    <input type="submit" value="{{k.tool_assigned}}" style="background: none; cursor: pointer; border: none; color: black;font-weight: bold; text-decoration: underline; font-size: medium; text-transform: capitalize;"> </form>
+                </td>
+                
+              {% else %}
+                  <td>--</td>
+                
+             {% endif %}
+                <td>{{k.tool_avaliability}}</td>
+                <td>{{k.tool_category}}</td>
+                
+               <td>
+                {{k.assigned_employee_id}}</td>
+
+         
+                  {% if k.tool_avaliability  == "In-Repair" %}
+                   <td> 
+                    <div class="container">
+             
+                      <button  onmouseover="myFunction(this,'{{k.tool_id}}')" style="background-color:  #433f3f; color: white; width: 80px;" >Repair Done</button>
+                      <div class="deleteModal" >
+                      <button onclick="repairTool('{{k.tool_id}}')" style="background-color: black; color: white; width: 90px;" >Mark As Done</button>
+                      </div>
+
+                    </div>
+                   </td>             
+                  {% endif %} 
+    
+                  {% if k.tool_avaliability  == "Assigned" %}
+                   <td> <form action="{% url 'unassign-tool' %}" method="POST">
+                      {% csrf_token %}
+                     <input type="hidden" name="tool_id" value="{{k.id}}">
+                     <input type="hidden" name="message" value="view tool">
+                     <a href="{% url 'unassign-tool' %}"><input type="submit" value="Unassign" style="background-color:  #433f3f;color: white; padding: 5px; width: 80px;"></a> </form>
+                    </td>              
+                 {% endif %} 
+                 {% if k.tool_avaliability  ==  "Avaliable" %}
+               
+               
+                   <td> <form action="{% url 'assign-tool' %}" method="POST">
+                     {% csrf_token %}
+                    <input type="hidden" name="tool_id" value="{{k.tool_id}}">
+                    <input type="hidden" name="message" value="view tool">
+                    <input type="submit" value="Assign" style="background-color:  #433f3f; color: white; width: 80px; padding: 5px;"></a> </form>
+                   </td>
+                 {% endif %}
+
+
+          
+
+                  <td> <form action="{% url 'history' %}" method="POST">
+                     {% csrf_token %}
+                    <input type="hidden" name="tool_id" value="{{k.tool_id}}">
+                    <button type="submit" id="history" style="font-size: 20px; border: none; background: none;"><i class="fa fa-history"></i></button> </form>
+                 </td>  
+
+                
+
+      </tr>
+       {% endfor %}
+
+    </tbody>
+            
+</table>
+
+<div id="pagiation">
+    
+        {%if page_obj.has_previous %} 
+            <a href="?page={{page_obj.previous_page_number}}" style="text-decoration: none; color: blue;"> < </a> 
+        {% endif %}
+        <span>Page {{page_obj.number}} of {{total}}</span> 
+
+        {%if page_obj.has_next %} 
+            <a href="?page={{page_obj.next_page_number}}" style="text-decoration: none; color: blue;"> > </a> 
+        {% endif %}
+    
+</div>
+
+
+
+
+
+
+</body>
+<script>
+  let toolId = null;
+
+    let searchResults = [];
+    let currentPage = 1;
+    const itemsPerPage = 5;
+
+
+function input_bar_function(){
+  const inputElement = document.getElementById('search')
+  if (inputElement.style.display === 'none'){
+  inputElement.style.display = 'block';}
+  else{
+    inputElement.style.display = 'none';
+  }
+}
+ 
+function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    
+function search_function(){
+  const input=document.getElementById("search")
+  console.log(input.value)
+  const searchValue = input.value.trim();
+
+  fetch('/asset-details/',{
+    method :'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body : JSON.stringify({'search':searchValue}),
+      })
+        .then(response => response.json())
+      .then(data => {
+        searchResults = data.searched_data
+        currentPage = 1;
+        renderTable();
+        pagiation();
+      })
+    }
+
+function renderTable(){
+
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+      const start = (currentPage - 1) * itemsPerPage;
+    const paginatedData = searchResults.slice(start, start + itemsPerPage);
+    if (paginatedData.length === 0) {
+    const row = tableBody.insertRow();
+    const cell = row.insertCell();
+    cell.colSpan = 9;
+    cell.textContent = "No results found.";
+    return;
+  }
+        
+        paginatedData.forEach((item,index) => {
+          console.log('hello')
+          const row=tableBody.insertRow();
+          row.insertCell().textContent = index + 1;
+          const toolNameCell = row.insertCell();
+          toolNameCell.textContent = item.tool_name;
+          toolNameCell.style.textTransform = "capitalize";
+          toolNameCell.style.fontWeight = "bold";
+          
+          row.insertCell().textContent = item.tool_id;
+          
+          if(item.tool_assigned != null){
+          const nameCell = row.insertCell();
+          
+          const form = document.createElement("form");
+          form.method = "POST";
+          form.action = "/search/";
+          form.innerHTML = `
+            <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+            <input type="hidden" name="tool_id" value="${item.assigned_employee_id}">
+            <input type="submit" value="${item.tool_assigned}" style="background: none; border: none; color: black;font-weight: bold; text-decoration: underline; font-size: medium; text-transform: capitalize;">
+          `;
+          nameCell.appendChild(form);
+        }
+          else {
+          row.insertCell().textContent = "None";
+
+           }
+    
+          row.insertCell().textContent = item.tool_avaliability;
+
+          row.insertCell().textContent = item.tool_category;
+          if (item.tool_assigned != null){
+          row.insertCell().textContent = item.assigned_employee_id;}
+          else{
+            row.insertCell().textContent= "None"
+          }
+          if(item.tool_avaliability=='In-Repair'){
+          const nameCell = row.insertCell();
+          const button = document.createElement("button");
+          button.style.border='None';
+          button.style.background='None';
+          button.style.width='100px'
+          button.innerHTML=`
+                    <div class="container">
+             
+                      <button  onmouseover="myFunction(this,'{{k.tool_id}}')" style="background-color:  #433f3f; color: white; width: 80px;" >Repair Done</button>
+                      <div class="deleteModal" >
+                      <button onclick="repairTool('{{k.tool_id}}')" style="background-color: black; color: white; width: 90px;" >Mark As Done</button>
+                      </div>
+
+                    </div>        
+          
+          `
+          console.log(button)
+
+
+
+          nameCell.appendChild(button);
+
+ 
+        }
+
+          else if(item.tool_avaliability=="Assigned"){
+                   const deleteCell = row.insertCell();
+                   deleteCell.textContent='Unassign';
+                   deleteCell.innerHTML = `
+             <form action="/unassign-tool/" method="POST">
+                  <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+               
+                 <input type="hidden" name="message" value="view tool">
+                 <input type="hidden" name="tool_id" value="${item.id}">
+                 <input type="hidden" name="flag" value="${item.id}">
+                 <input type="submit" value="Unassign"  style="background-color:  #433f3f; color: white; width: 80px; padding: 5px;">
+             </form>`;
+            
+          }
+          else{
+          const editCell = row.insertCell();
+          editCell.innerHTML = `
+                  <form action="/assign-tool/" method="POST">
+              <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+              <input type="hidden" name="tool_id" value="${item.tool_id}">
+              <input type="hidden" name="message" value="view tool">
+              <input type="submit" value="Assign" style="background-color:  #433f3f; color: white; width: 80px; padding: 5px;">
+                   </form>
+          `;
+
+          }
+          const historyCell = row.insertCell();
+          historyCell.innerHTML = `
+                  <form action="/history/" method="POST">
+              <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+              <input type="hidden" name="tool_id" value="${item.tool_id}">
+              <button type="submit" id="history" style="font-size: 20px; border: none; background: none;"><i class="fa fa-history"></i></button> 
+
+                   </form>
+          `;
+
+          
+        });
+      
+      
+// .catch((error) => {
+//     console.error('Error:', error);
+// });
+
+
+}
+
+
+function pagiation(){
+    const pagiation = document.getElementById('pagiation');
+  const totalPages = Math.ceil(searchResults.length / itemsPerPage);
+  let value ="";
+  if (currentPage >1){
+    console.log('helloif')
+    value += `
+    <button onclick="changePage(${currentPage - 1})"style="background: none; border: none; color: blue; font-size: 15px; "> <</button>`;
+    }
+    if (totalPages === 0){
+value += `<span style="margin: 0 10px;">Page ${currentPage} of 1 </span>`;
+    }else{
+    value += `<span style="margin: 0 10px;">Page ${currentPage} of ${totalPages}</span>`;}
+  if (currentPage <totalPages ){
+    value += 
+    `<button onclick="changePage(${currentPage + 1})"style="background: none; border: none; color: blue; font-size: 15px; ">></button>`;
+    
+  } pagiation.innerHTML=value
+}
+
+
+function changePage(value){
+    currentPage=value;
+    renderTable();
+    pagiation();
+}
+    
+function myFunction(button,value) {
+     
+        const container = button.parentElement;
+        console.log(container)
+        const modal = container.querySelector('.deleteModal');
+        modal.style.display = 'block';
+
+  container.addEventListener('mouseleave', () => {
+    modal.style.display = 'none';
+  });
+      
+        
+        
+      }
+
+function repairTool(value){
+
+             console.log(value)
+             fetch('/unrepair-tool/', {
+                method: 'POST',
+               headers: {
+               'Content-Type': 'application/json',
+               'X-CSRFToken': getCookie('csrftoken')
+                },
+               body: JSON.stringify({ tool_id: value })
+             })
+        .then(response => response.json())
+
+              .then(data => {
+                console.log("success")
+                console.log(data.success)
+                if(data.message){
+                  console.log("hello")
+                    const messageElement = document.getElementById('message1');
+                    messageElement.textContent = "Repair Done Successfully";
+
+                  setTimeout(function(){
+
+                
+                       window.location.href = data.redirect_url;
+
+                            },700);
+                }
+                else{
+                   }
+              })
+         .catch(error => {
+           console.error('Delete failed:', error);
+         });
+    
+        }
+       
+
+
+
+const myTimeout = setTimeout(myGreeting, 2000);
+
+
+function myGreeting() {
+  document.getElementById("msg").innerHTML = ""
+}
+
+
+function myStopFunction() {
+  clearTimeout(myTimeout);
+}
+
+
+
+
+
+
+
+</script>
+</html>
+
+
+
+
+
+
+
+
+

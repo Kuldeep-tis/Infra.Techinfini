@@ -1,0 +1,1116 @@
+<!-- At the top of your page add load static -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<style>
+   table, td, th {
+     border: 1px solid;
+     border: none;
+     
+   }
+  tr{
+        height:50px
+
+  }
+  td{
+    border-bottom: 1px solid gray;
+  }
+
+  table {
+     width: 100%;
+     border-collapse: collapse;
+     text-align: center;
+     margin-left: auto;
+     margin-right: auto;
+  }
+
+  .deleteModal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+
+  }
+
+  .deleteModalContent {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 10px;
+            text-align: center;
+  }
+
+  .deleteModal button {
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 8px 20px;
+  }
+  .filter{
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            
+            height: 50%;
+  }
+  .filtercontent{
+            background-color: #e5e5e4;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 230px;
+            height: 90vh;
+            margin-top: 50px;
+            border-radius: 10px;
+              box-shadow: 25px 25px 50px 10px rgba(175, 164, 164, 0.2);
+            /* text-align: center; */
+
+  }
+
+      
+  .sub_filter{
+            background-color: #e5e5e4;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 200px;
+             /* box-shadow: 50px 50px 100px 20px rgba(0, 0, 0, 0.5); */
+             box-shadow: 50px 50px 100px 20px rgba(0, 0, 0, 0.2);
+
+            height: 40vh;
+            border-radius: 10px;
+            overflow: scroll;
+            margin-top: 200px;
+
+  }
+  
+  
+
+        
+
+
+
+</style>  
+</head>
+
+<body>
+        
+
+
+
+{% include 'test_app/navbar.html' %}
+
+<br>
+
+
+    <a href="/dashboard"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;"></a>
+    
+        {% if messages %}
+        
+           {% for message in messages %} 
+                
+                 <p id="msg" style="font-weight: bold;">{{ message}}</p>  
+                
+            {% endfor %}  
+        
+     {% endif %}
+     <p id="message1"></p>
+<div style="display: flex; flex-direction: column;">
+  <div>
+  <a      href="{% url 'inventory' %}" style="float: right;">
+    <button type="submit" style="width: 200px; padding: 10px; margin-top: -10px;">Add Asset</button> 
+   
+  </a>
+  </div>
+  <div>
+   <button type="button" onclick="filter_function()"style="width: 200px; padding: 10px; float: right; font-weight : bold; font-size :15px ">Filter <i class="fa fa-filter"></i></button>
+  </div>
+</div>
+
+
+<button type="button" onclick="input_bar_function()" style="float: right; border-radius: 50%; height: 40px; width: 40px;margin-top: 65px; ">       <i class="fas fa-magnifying-glass"></i></button>
+
+<input type="text" id="search" name="search" oninput="Advancefilterfunction()" placeholder="Search Here" style="float: right; margin-top: 75px; padding: 3px; display: none; border-radius: 15px;"><br>
+<h1 class='list' style="margin-left: 700px; margin-top: 50px; position: fixed;">Asset Details</h1>
+
+
+<table>
+ 
+  <thead style="background-color: #eee;">  
+    
+    <tr>    
+                <th> Serial no.</th>
+                <th>Asset ID</th>
+                
+                <th>Asset Name</th>
+                <th>Asset Avaliablity</th>
+                <th>Asset Category</th>
+                <th>Asset Compnay</th>
+                <th>Asset Model</th>
+                <th>Asset Price</th>
+                <th>purchase date</th>
+                <th>Warranty Date</th>
+                <th>Condition</th>
+                <th>Supplier</th>
+                <th>Remark</th>
+                <th>Location</th>
+                <th colspan="2">Action</th>
+
+                
+                
+                
+    </tr>
+  </thead>
+
+    <tbody id="tableBody">
+
+              {% for k in page_obj.object_list %}
+        
+           
+            <tr>
+                <td>{{forloop.counter}}</td>
+                
+                <td>{{k.tool_id}}</td>
+                <td style="text-transform: capitalize; font-weight: bold;">{{k.tool_name}}</td>
+                <td>{{k.tool_avaliability}}</td>
+                <td style="text-transform: capitalize;">{{k.tool_category}}</td>
+                {% if k.tool_company %}
+                   <td style="text-transform: capitalize;">{{k.tool_company}}</td>
+                {% else %}
+                   <td>--</td>
+                {% endif %}
+                {% if k.tool_model %}
+                   <td>{{k.tool_model}}</td>
+                {% else %}
+                   <td>--</td>
+                {% endif %}
+                {% if k.tool_price %}
+                <td>{{k.tool_price}}</td>
+                {% else %}
+                <td>--</td>
+                {% endif %}
+                {% if k.tool_purchase %}
+                    <td>{{k.tool_purchase}}</td>
+                {% else %}
+                     <td>--</td>
+                {% endif %}
+                {% if k.tool_warantty != 'Null' %}
+                  <td>{{k.tool_warantty}}</td>
+                {% else %}
+                  <td>--</td>
+                  {% endif %}
+                <td>{{k.tool_condition}}</td>
+                {% if k.tool_supplier %}
+                <td>{{k.tool_supplier}}</td>
+                {% else %}
+                <td>--</td>
+                {% endif %}
+                {% if k.tool_remark %}
+                <td>{{k.tool_remark}}</td>
+                {% else %}
+                <td>--</td>
+                {% endif %}
+                {% if k.tool_location %}
+                <td style="text-transform: capitalize;">{{k.tool_location}}</td>
+                {% else %}
+                <td >--</td>
+                {% endif %}
+               
+                <td>
+                <button onclick="deleteEmployee('{{ k.tool_id }}')" style="background:none; border:none; font-size:20px; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                    <!-- <button onclick="deletethis()" >OUT</button> -->
+               </td>
+               <td>   <form  action="{% url 'edit-tool' %}" method="POST">
+                     {% csrf_token %}
+                    <input type="hidden" name="tool_id" value="{{k.tool_id}}" >
+                  <a href="{% url 'edit-tool' %}"><input type="submit" class="fas" value=  "&#xf044;" style="background: none; border: none; font-size: 20px;" ></a> </form>
+
+               </td>
+            </tr>
+      {% endfor %}
+
+    </tbody>
+            
+</table>
+
+<div id="pagiation">
+    
+        {%if page_obj.has_previous %} 
+            <a href="?page={{page_obj.previous_page_number}}" style="text-decoration: none; color: blue;"><</a> 
+        {% endif %}
+        <span>Page {{page_obj.number}} of {{total}}</span> 
+
+        {%if page_obj.has_next %} 
+            <a href="?page={{page_obj.next_page_number}}" style="text-decoration: none; color: blue;">></a> 
+        {% endif %}
+    
+</div>
+
+
+<div id="deleteModal" class="deleteModal">
+    <div id="deleteModalContent" class="deleteModalContent">
+        <h2>Confirm Delete</h2>
+        <p>Are you sure you want to delete this tool?</p>
+        <button onclick="deleteTool()">Yes</button>
+        <button onclick="closeModal()">No</button>
+    </div>
+</div>
+
+<div id="displayOptions" class="filter" style="display: none;" >
+  <div id="displayOptionsContent" class="filtercontent" >
+   <div style="display: flex; gap: 4.2rem;">
+    <div>
+    <h2 >Filters</h2>
+    <button onclick="clearall()" style="background: none; border: none; color: blue;">Clear All</button>
+      <div>
+         <label onclick="displayCheckboxes('tool_list')"style="cursor: pointer;" id="asset_name" ><button  style="font-weight: bold; width: 180px; " >Asset Name <i id="tool_list">&#9660;</i></button>
+          <div id="assetNameCheckboxes" style="display: none;" >
+         <div>
+           {% for k in tool_list %}
+             <input type="checkbox"  value="{{k}}" name="asset_name" >{{k}}<br>
+            {% endfor %}
+         </div>
+          </div>
+    
+      </div>
+
+ <br>
+      <div>
+         <label onclick="displayCheckboxes('availability')"style="cursor: pointer;" id="asset_availability"><button  style="font-weight: bold; width: 180px;" >Asset Avaliablity<i id="availability"> &#9660;</i></button></label>
+
+         <div id="availabilityCheckboxes" style="display: none;" >
+           <input type="checkbox" value="Avaliable" name="Avaliablity">Avaliable<br>
+           <input type="checkbox" value="Assigned" name="Avaliablity">Assigned <br>
+           <input type="checkbox" value="In-Repair" name="Avaliablity">In-Repair <br>
+
+       </div>
+      </div>
+<br>
+
+  {% if len_of_location == 0 %} 
+  
+  {% else %}
+     <div>
+         <label onclick="displayCheckboxes('location')"style="cursor: pointer;" ><button  style="font-weight: bold; width: 180px;" >Asset location<i id="location"> &#9660;</i></button></label>
+            <div id="locationCheckboxes" style="display: none;">
+             {% for k in tool_location %}
+               <input type="checkbox" value="{{k}}" name="location">{{k}}
+ 
+            {% endfor %}
+          </div>
+     </div>
+     {% endif %} 
+<br>
+     <div>
+        <label onclick="displayCheckboxes('condition')"style="cursor: pointer;"><button  style="font-weight: bold; width: 180px;" >Asset Condition <i id="condition">&#9660;</i></button></label>
+         <div id="conditionCheckboxes" style="display: none;">
+             <input type="checkbox" value="New" name="condition">New
+             <input type="checkbox" value="Average" name="condition">Average 
+            <input type="checkbox" value="Bad" name="condition">Bad 
+
+          </div>
+     </div>
+<br>
+     <div>
+         <label onclick="displayCheckboxes('category')"style="cursor: pointer;"><button  style="font-weight: bold; width: 180px;">Asset Category<i id="category"> &#9660;</i></button></label>
+         <div id="categoryCheckboxes" style="display: none;">
+             {% for k in tool_category %}
+               <input type="checkbox" value="{{k}}" name="category">{{k}}
+ 
+            {% endfor %}
+          </div>
+      </div>
+
+<br>
+{% if len_of_company == 0 %}
+
+{% else %}
+      <div>
+        
+         <label onclick="displayCheckboxes('company')"style="cursor: pointer;"><button  style="font-weight: bold; width: 180px;">Asset Company <i id="company">&#9660;</i></button></label>
+         <div id="companyCheckboxes" style="display: none;">
+          {% for k in tool_company %}
+          <input onchange="Advancefilterfunction()" type="checkbox" name="company" value="{{k}}">{{k}}
+          {% endfor %}
+         </div>
+      </div>
+{% endif %}
+<br>
+{% if max_price == 0 %}
+<input hidden id="price" value="0">
+{% else %}
+     <div>
+        <label style="font-weight: bold;">Asset price less than</label>
+        <div>₹<span id="price_value">0</span></div>
+        <input type="range" id="price" min="0" max="{{max_price}}" value="0" oninput="document.getElementById('price_value').innerText = this.value;">
+      </div>
+      {% endif %}
+<br>
+     <div>
+       <label style="font-weight: bold; ">Waranty Date</label><br>
+       <input type="date" id="asset_warantyDate" style="width: 170px; padding: 3px;">
+     </div>
+  
+  <br >
+     <button type="submit" onclick="Advancefilterfunction()" style="background-color: black; color: white; margin-left: 50px;">Apply</button> 
+  <br>
+     </div>
+   
+      <div id="sub_filter_box" >
+        <div id="sub_filter_box_data" class="sub_filter" style="display: none;">
+        
+        </div>
+
+      </div>
+  
+    </div>
+  </div>
+</div>
+
+<div id="test" style="float: right;">
+
+</div>
+
+</body>
+
+
+<script>
+ 
+        let toolId = null;
+        let searchResults = [];
+        let currentPage = 1;
+        const itemsPerPage = 5;
+
+
+function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+const selectedCheckboxes = {
+  'asset_name': new Set(),
+  'Avaliablity': new Set(),
+  'condition': new Set(),
+  'category': new Set(),
+  'location': new Set(),
+  'company' : new Set(),
+};
+   
+function search_function(){
+  const input=document.getElementById("search")
+  const searchValue = input.value.trim();
+  console.log(searchValue)
+
+  fetch('/asset-details/',{
+    method :'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body : JSON.stringify({'search':searchValue}),
+      })
+        .then(response => response.json())
+      .then(data => {
+          searchResults = data.searched_data
+          
+          currentPage = 1;
+          renderTable();
+          pagiation();
+      })
+    }
+
+function renderTable(){
+
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+        const start = (currentPage - 1) * itemsPerPage;
+        const paginatedData = searchResults.slice(start, start + itemsPerPage);
+        console.log(paginatedData)
+    if (paginatedData.length === 0) {
+    const row = tableBody.insertRow();
+    const cell = row.insertCell();
+    cell.colSpan = 15;
+    cell.textContent = "No results found.";
+    return;
+  }
+        paginatedData.forEach((item,index) => {
+          const row=tableBody.insertRow();
+          row.insertCell().textContent = index + 1;
+          row.insertCell().textContent = item.tool_id;
+          const toolNameCell = row.insertCell();
+          toolNameCell.textContent = item.tool_name;
+          toolNameCell.style.textTransform = "capitalize";
+          toolNameCell.style.fontWeight = "bold"; 
+          // row.insertCell().textContent = item.tool_name;
+          row.insertCell().textContent = item.tool_avaliability;
+
+          row.insertCell().textContent = item.tool_category;
+        if(item.tool_company){
+          const toolCompanyCell = row.insertCell();
+          toolCompanyCell.textContent = item.tool_company;
+          toolCompanyCell.style.textTransform = "capitalize";
+          // row.insertCell().textContent = item.tool_company;
+        }
+          else{
+              row.insertCell().textContent = "--";
+
+          }
+          if(item.tool_model){
+          row.insertCell().textContent = item.tool_model;}
+          else{
+                      row.insertCell().textContent = "--";
+
+          }
+          if(item.tool_price){
+          row.insertCell().textContent = item.tool_price;}
+          else{
+                      row.insertCell().textContent = "--";
+
+          }
+         if(item.tool_purchase){
+          row.insertCell().textContent = item.tool_purchase;}
+          else{
+                      row.insertCell().textContent = "--";
+
+          }
+          if(item.tool_warantty != 'Null'){
+          row.insertCell().textContent = item.tool_warantty;}
+          else{
+          row.insertCell().textContent = "--";
+
+          }
+          row.insertCell().textContent = item.tool_condition;
+          if(item.tool_supplier){
+          row.insertCell().textContent = item.tool_supplier;}
+          else{
+          row.insertCell().textContent = "--";
+
+          }
+          if(item.tool_remark){
+          
+          row.insertCell().textContent = item.tool_remark;}
+          else{
+          row.insertCell().textContent = "--";
+
+          }
+          if(item.tool_location){
+          
+                  const toolCompanyCell = row.insertCell();
+          toolCompanyCell.textContent = item.tool_location;
+          toolCompanyCell.style.textTransform = "capitalize";}
+          else{
+          row.insertCell().textContent = "--";
+
+          }
+          const deleteCell = row.insertCell();
+         const delBtn = document.createElement("button");
+           delBtn.innerHTML = '<i class="fas fa-trash"></i>'; 
+          delBtn.style.background = "none";
+             delBtn.style.border = "none";
+             delBtn.style.fontSize = "20px";
+            delBtn.style.cursor = "pointer";
+          delBtn.onclick = () => deleteEmployee(item.tool_id);
+          deleteCell.appendChild(delBtn)  ;
+
+
+        
+          const editCell = row.insertCell();
+          
+          editCell.innerHTML = `
+                  <form action="/edit-tool/" method="POST">
+              <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+              <input type="hidden" name="tool_id" value="${item.tool_id}">
+              <input type="submit" class="fas" value=  "&#xf044;" style="background: none; border: none; font-size: 20px;" ></a>
+                   </form>
+          `;
+
+
+        });
+      
+    
+
+}
+
+function pagiation(){
+      const pagiation = document.getElementById('pagiation');
+  const totalPages = Math.ceil(searchResults.length / itemsPerPage);
+  let value ='';
+    if (currentPage >1){
+    value += `
+    <button onclick="changePage(${currentPage - 1})" style="background: none; border: none; color: blue; font-size: 15px; "><</button>`;
+    } if (totalPages === 0){
+    value +=`<span style="margin: 0 10px;">Page ${currentPage} of 1 </span>`;}
+      else {
+            value +=`<span style="margin: 0 10px;">Page ${currentPage} of ${totalPages} </span>`;}
+
+      
+  if (currentPage <totalPages ){
+    value += 
+    `<button onclick="changePage(${currentPage + 1})" style="background: none; border: none; color: blue; font-size: 15px;" > ></button>`;
+    
+  } pagiation.innerHTML=value
+   }
+  
+function input_bar_function(){
+  const inputElement = document.getElementById('search')
+  if (inputElement.style.display === 'none'){
+  inputElement.style.display = 'block';}
+  else{
+    inputElement.style.display = 'none';
+  }
+}
+  
+function changePage(value){
+    currentPage=value;
+    renderTable();
+    pagiation();
+}
+
+
+function deleteEmployee(toolId) {
+        toolIdToDelete = toolId;
+        document.getElementById('deleteModal').style.display = 'block';
+    }
+  
+  
+function deleteTool(){
+     fetch('/delete-tool12/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ tool_id: toolIdToDelete })
+      })
+        .then(response => response.json())
+
+              .then(data => {
+
+                if(data.message){
+                    const messageElement = document.getElementById('message1');
+                    messageElement.textContent = "Tool Deleted Successfully";
+
+                  setTimeout(function(){
+
+                
+                       window.location.href = '/asset-details/';
+
+                            },700);
+                 }
+                else{
+
+                }
+                
+                        // window.location.href = "/view_employee/";
+ // Handle errors
+
+                
+      
+           })
+      .catch(error => {
+        console.error('Delete failed:', error);
+      });
+    
+
+
+
+
+
+
+    }
+
+
+function filter_function(){
+  const filterdIV = document.getElementById('displayOptions')
+  if (filterdIV.style.display === 'none'){
+     filterdIV.style.display = 'block';
+  }
+  else {
+  filterdIV.style.display = 'none';
+
+  }
+
+}
+
+function Advancefilterfunction(){
+  console.log('print')
+      const selectedValues = Array.from(selectedCheckboxes['asset_name']);
+      const companyValues = Array.from(selectedCheckboxes['company']);    
+      const price = document.getElementById('price')
+      console.log(price)
+      const Values = Array.from(selectedCheckboxes['Avaliablity']);
+      const categoryValues = Array.from(selectedCheckboxes['category']);
+      const conditionValues = Array.from(selectedCheckboxes['condition']);
+    
+      const location = Array.from(selectedCheckboxes['location']);
+      
+      const waranty = document.getElementById('asset_warantyDate')
+      const input=document.getElementById("search")
+      const searchValue = input.value.trim();
+
+
+       fetch('/filter-tool/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ name: selectedValues , company :companyValues, avaliablity:Values , category:categoryValues
+          , condition : conditionValues , location : location , waranty :waranty.value , price :price.value , search : searchValue
+         })
+      })
+        .then(response => response.json())
+      .then(data => {
+          console.log('hello')
+          searchResults = data.searched_data
+          currentPage = 1;
+            document.getElementById('displayOptions').style.display = 'None';
+
+          renderTable();
+          pagiation();
+      })
+}
+
+
+function closeModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+        toolIdToDelete = null;
+    }
+    
+function closefilter(){
+          document.getElementById('displayOptions').style.display = 'none';
+
+
+}
+    
+let prevMsg = 'nonee';
+function displayCheckboxes(message){
+    
+
+       
+     
+       
+       const nameDiv = document.getElementById('sub_filter_box_data');
+        nameDiv.innerHTML = '';
+        
+
+        let html = '';
+         if (message === 'tool_list' || message === "top_five_tool" ) {
+            if (nameDiv.style.display === 'none' || prevMsg != 'tool_list' || message === 'top_five_tool'){
+                nameDiv.style.display = 'block';
+                html += `<label style="font-weight: bold; font-size: 20px;">Asset Name </label><br><br>`
+               {% for k in top_five_tools %}
+                  html += `<label><input type="checkbox" style="text-transform: capitalize;" value="{{k}}" name="asset_name" id="asset_name" ${selectedCheckboxes['asset_name'].has('{{k}}') ? 'checked' : ''}>
+                    <span style="text-transform: capitalize;">{{k}}</span></label><br>`;
+               {% endfor %}
+               {% if len_of_tools > 5 %}
+                html+=`
+               <label onclick="fullList('tool_list')"style="cursor: pointer;" id="asset_name" ><button  style="font-weight: bold; " id="assetButton">Show More &#9660;</button>
+                 `
+                 {% endif %}
+               message = 'tool_list'
+               let ChangeArrowButton = document.getElementById(message)
+               ChangeArrowButton.innerHTML = `&#9650` ;
+
+               if (prevMsg != 'nonee' && prevMsg != message){
+                
+               let previousBox = document.getElementById(prevMsg)
+                  previousBox.innerHTML = `&#9660 `;
+               }
+                prevMsg = message ;
+                
+            }
+       
+            else if (prevMsg!= 'nonee'){
+              nameDiv.style.display = 'none';
+              prevMsg = 'nonee';
+              const ChangeArrowButton = document.getElementById(message) ;
+              ChangeArrowButton.innerHTML = `&#9660` ;
+
+            }
+          }
+       
+        else if (message === 'availability') {
+            if (nameDiv.style.display === 'none' || prevMsg != 'availability'){
+              nameDiv.style.display = 'block';
+        
+               html += `<label style="font-weight: bold; font-size: 20px;">Avaliability </label><br><br>`
+
+              {% for k in avaliability %}
+              html += `<label><input type="checkbox" value="{{k}}" name="Avaliablity" id="Avaliablity" ${selectedCheckboxes['Avaliablity'].has('{{k}}') ? 'checked' : ''}>{{k}}</label><br>`;
+              {% endfor %}
+               let ChangeArrowButton = document.getElementById(message)
+               ChangeArrowButton.innerHTML = `&#9650`;
+               if (prevMsg != 'nonee'){
+               let previousBox = document.getElementById(prevMsg)
+                  previousBox.innerHTML = `&#9660`;
+               }
+              prevMsg = message
+            }
+            else if (prevMsg!= 'nonee'){
+              nameDiv.style.display = 'none';
+              prevMsg = 'nonee';
+              const ChangeArrowButton = document.getElementById(message) ;
+              ChangeArrowButton.innerHTML = `&#9660`;
+            }
+        } 
+
+        else if (message === 'category' || message === 'top_five_category') {
+        if (nameDiv.style.display === 'none' || prevMsg != 'category' || message ==='top_five_category' ){
+              nameDiv.style.display = 'block';
+                    html += `<label style="font-weight: bold; font-size: 20px;"> Category </label><br><br>`
+
+             {% for k in top_five_category %}
+                 html += `<label><input type="checkbox" value="{{k}}" name="category" id= "category" ${selectedCheckboxes['category'].has('{{k}}') ? 'checked' : ''}>
+                   <span style="text-transform: capitalize;">{{k}}</span></label><br>`;
+             {% endfor %}
+             {% if len_of_category > 5 %}
+                html+=`
+               <label onclick="fullList('category')"style="cursor: pointer;" id="asset_name" ><button  style="font-weight: bold; " id="assetButton">Show More &#9660;</button>
+                 `
+             {% endif %}
+              message = 'category'
+              let ChangeArrowButton = document.getElementById(message)
+               ChangeArrowButton.innerHTML = `&#9650`;
+               if (prevMsg != 'nonee' && prevMsg != message){
+               let previousBox = document.getElementById(prevMsg)
+                  previousBox.innerHTML = `&#9660`;
+               }
+             prevMsg = message;
+        }
+      
+        else {
+             nameDiv.style.display = 'none';
+              prevMsg = 'nonee';
+              const ChangeArrowButton = document.getElementById(message) ;
+              ChangeArrowButton.innerHTML = `&#9660`;
+
+        }
+          
+       } 
+
+        else if (message === 'condition') {
+            if (nameDiv.style.display === 'none' || prevMsg != 'condition'){
+              nameDiv.style.display = 'block';
+                html += `<label style="font-weight: bold; font-size: 20px;">Tool Condition </label><br><br>`
+
+            
+          {% for k in condition %}
+
+           html += `<label><input type="checkbox" value="{{k}}" name="condition" id="condition" ${selectedCheckboxes['condition'].has('{{k}}') ? 'checked' : ''}>{{k}}</label><br>`;
+           {% endfor %}
+                  // html += `<label style="font-weight: bold; font-size: 20px;">Tool Condition </label><br><br>`
+                 
+                let ChangeArrowButton = document.getElementById(message)
+               ChangeArrowButton.innerHTML = `&#9650`;
+               if (prevMsg != 'nonee'){
+               let previousBox = document.getElementById(prevMsg)
+                  previousBox.innerHTML = `&#9660`;
+               }
+          prevMsg = message
+        }
+            else if (prevMsg!= 'nonee'){
+              nameDiv.style.display = 'none';
+              prevMsg = 'nonee';
+              const ChangeArrowButton = document.getElementById(message) ;
+              ChangeArrowButton.innerHTML = `&#9660`;
+            }
+      }
+      
+        else if (message === 'location' || message === 'top_five_location') {
+         if (nameDiv.style.display === 'none' || prevMsg != 'location' || message === 'top_five_location' ){
+              nameDiv.style.display = 'block';
+                    html += `<label style="font-weight: bold; font-size: 20px;">Tool Location </label><br><br>`
+                    html +=`<input id = 'searchLocation' oninput = "searchCompany('searchLocation')" style = "width :120px" placeholder = 'Search here'><br> `
+             html +=`<div id=test>`
+             {% for k in top_five_location %}
+                 html += `<label><input type="checkbox" value="{{k}}" style="text-transform: capitalize;" name="location" id="location" ${selectedCheckboxes['location'].has('{{k}}') ? 'checked' : ''}>
+                   <span style="text-transform: capitalize;">{{k}}</span></label><br>`;
+             {% endfor %}
+             {% if len_of_location > 5 %}
+                html+=`
+               <label onclick="fullList('location')"style="cursor: pointer;" id="asset_name" ><button  style="font-weight: bold; " id="assetButton">Show More &#9660;</button>
+                 `
+             {% endif %}
+             html += `</div>`
+              message = 'location'
+                 let ChangeArrowButton = document.getElementById(message)
+               ChangeArrowButton.innerHTML = `&#9650`;
+               if (prevMsg != 'nonee' && prevMsg != message ){
+               let previousBox = document.getElementById(prevMsg)
+                  previousBox.innerHTML = `&#9660`;
+               }
+             prevMsg = message;
+        }
+        else {
+             nameDiv.style.display = 'none';
+              prevMsg = 'nonee';
+              const ChangeArrowButton = document.getElementById(message) ;
+              ChangeArrowButton.innerHTML = `&#9660`;
+
+        }
+      } 
+      
+        else if (message === 'company' || message === 'top_five_company') {
+            if (nameDiv.style.display === 'none' || prevMsg != 'company' || message ==='top_five_company' ){
+                nameDiv.style.display = 'block';
+                   
+
+
+
+                    html += `<label style="font-weight: bold; font-size: 20px;">Tool Company </label><br><br>`
+                    html +=`<input id = 'searchCompany' oninput = "searchCompany('searchCompany')" style = "width :120px" placeholder = 'Search here'><br> `
+                    html += `<div id = test> `
+                {% for k in top_five_company %}
+                   html += `<label><input type="checkbox"  value="{{k}}" name="company" ${selectedCheckboxes['company'].has('{{k}}') ? 'checked' : ''}>
+                     <span style="text-transform: capitalize;">{{k}}</span></label><br>`;
+                {% endfor %}
+                {% if len_of_company > 5 %}
+                  html+=`
+                 <label onclick="fullList('company')"style="cursor: pointer;" id="asset_name" ><button  style="font-weight: bold; " id="assetButton">Show More &#9660;</button>
+                   `
+             {% endif %}
+             html += `</div>`
+              message = 'company'
+              let ChangeArrowButton = document.getElementById(message)
+               ChangeArrowButton.innerHTML = `&#9650`;
+               if (prevMsg != 'nonee' && prevMsg != message){
+               let previousBox = document.getElementById(prevMsg)
+                  previousBox.innerHTML = `&#9660`;
+               }
+             prevMsg = message;
+        }
+      
+        else {
+             nameDiv.style.display = 'none';
+              prevMsg = 'nonee';
+              const ChangeArrowButton = document.getElementById(message) ;
+              ChangeArrowButton.innerHTML = `&#9660`;
+        }
+        }
+
+     nameDiv.innerHTML = html;
+ 
+
+    nameDiv.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+            const name = e.target.name;
+            const value = e.target.value;
+            if (e.target.checked) {
+                selectedCheckboxes[name].add(value);
+            } else {
+                selectedCheckboxes[name].delete(value);
+            }
+        });
+    });
+}
+
+function searchCompany(message){
+    let text = document.getElementById(message).value;
+    console.log(text)
+    const test = document.getElementById('test')
+    let html = ''
+         fetch('/search-company/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ tool_filter: text , message : message })
+      })
+        .then(response => response.json())
+              .then(data => {
+                test.innerHTML='';
+                console.log(data.message)
+                data.filtered_data.forEach((item,index) =>{
+                   console.log(item)
+                   console.log(data.message)
+                   if (data.message === 'company'){
+                    html += `<label><input type="checkbox"  value="${item}" name="${data.message}" ${selectedCheckboxes['company'].has(item) ? 'checked' : ''}>
+                     <span style="text-transform: capitalize;">${item}</span></label><br>`;
+                    }
+                    else {
+                    html += `<label><input type="checkbox"  value="${item}" name="${data.message}" ${selectedCheckboxes['location'].has(item) ? 'checked' : ''}>
+                     <span style="text-transform: capitalize;">${item}</span></label><br>`;    
+                    }
+                  
+                    
+              })
+            test.innerHTML = html ;
+            test.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+           checkbox.addEventListener('change', (e) => {
+              console.log('hello')
+            const name = e.target.name;
+            const value = e.target.value;
+            console.log(name)
+            if (e.target.checked) {
+                selectedCheckboxes[name].add(value);
+              } 
+            else {
+                selectedCheckboxes[name].delete(value);
+              }
+            });
+              });       
+      
+           })
+
+}
+
+
+
+
+function fullList(message){
+         const nameDiv = document.getElementById('sub_filter_box_data');
+        nameDiv.innerHTML = '';
+        let html = '';
+
+        if (message === 'tool_list'){
+            nameDiv.style.display = 'block';
+                      html += `<label style="font-weight: bold; font-size: 20px;">Asset Name </label><br><br>`
+
+            {% for k in tool_list %}
+                html += `<label><input type="checkbox" value="{{k}}" name="asset_name" id="asset_name" ${selectedCheckboxes['asset_name'].has('{{k}}') ? 'checked' : ''}>
+                   <span style="text-transform: capitalize;">{{k}}</span></label><br>`;
+            {% endfor %}
+              html+=`
+                <label onclick="displayCheckboxes('top_five_tool')"style="cursor: pointer;" id="asset_name" ><button  style="font-weight: bold; " id="assetButton"> Show Less &#9650;</button>
+                 `
+              prevMsg = message ;
+        }
+         
+        else if (message === 'category'){
+            nameDiv.style.display = 'block';
+                    html += `<label style="font-weight: bold; font-size: 20px;">Category </label><br><br>`
+
+            {% for k in tool_category %}
+                html += `<label><input type="checkbox" value="{{k}}" name="category" id="category" ${selectedCheckboxes['category'].has('{{k}}') ? 'checked' : ''}>
+                   <span style="text-transform: capitalize;">{{k}}</span></label><br>`;
+            {% endfor %}
+              html+=`
+                <label onclick="displayCheckboxes('top_five_category')"style="cursor: pointer;" id="asset_name" ><button  style="font-weight: bold; " id="assetButton">Show Less &#9650;</button>
+                 `
+              prevMsg = message;
+
+        }
+
+        else if (message === 'company'){
+                      nameDiv.style.display = 'block';
+                    html += `<label style="font-weight: bold; font-size: 20px;"> Tool Company </label><br><br>`
+                    html +=`<input id = 'searchCompany' oninput = "searchCompany('searchCompany')" style = "width :120px" placeholder = 'Search here'><br> `
+                    html +=`<div id = test>`
+            {% for k in tool_company %}
+                html += `<label><input type="checkbox" value="{{k}}" name="company" ${selectedCheckboxes['company'].has('{{k}}') ? 'checked' : ''}>
+                   <span style="text-transform: capitalize;">{{k}}</span></label><br>`;
+            {% endfor %}
+            
+              html+=`
+                <label onclick="displayCheckboxes('top_five_company')"style="cursor: pointer;" id="asset_name" ><button  style="font-weight: bold; " id="assetButton">Show Less &#9650;</button>
+                 `
+                 html += `</div>`
+              prevMsg = message;
+
+
+        }
+ 
+        else if (message === 'location'){
+            nameDiv.style.display = 'block';
+                    html += `<label style="font-weight: bold; font-size: 20px;">Tool Location </label><br><br>`
+                    html +=`<input id = 'searchLocation' oninput = "searchCompany('searchLocation')" style = "width :120px" placeholder = 'Search here'><br> `
+            html +=`<div id=test>`
+            {% for k in location_list %}
+                html += `<label><input type="checkbox" value="{{k}}" name="location" id="location" ${selectedCheckboxes['location'].has('{{k}}') ? 'checked' : ''}>
+                   <span style="text-transform: capitalize;">{{k}}</span></label><br>`;
+            {% endfor %}
+          
+               html+=`
+                 <label onclick="displayCheckboxes('top_five_location')"style="cursor: pointer;" id="asset_name" ><button  style="font-weight: bold; " id="assetButton">Show Less &#9650;</button>
+                  `  
+                  html +=`</div>`
+              prevMsg = message;
+
+        }
+    
+    
+      nameDiv.innerHTML = html;
+  
+      nameDiv.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+            const name = e.target.name;
+            const value = e.target.value;
+            if (e.target.checked) {
+                selectedCheckboxes[name].add(value);
+            } else {
+                selectedCheckboxes[name].delete(value);
+            }
+        });
+    });
+
+}
+
+function clearall(){
+  
+
+selectedCheckboxes.category.clear();
+selectedCheckboxes.condition.clear();
+selectedCheckboxes.location.clear();
+selectedCheckboxes.asset_name.clear();
+selectedCheckboxes.Avaliablity.clear();
+selectedCheckboxes.company.clear();
+document.getElementById("location").checked = false
+document.getElementById("category").checked = false
+document.getElementById("condition").checked = false
+document.getElementById("company").checked = false
+document.getElementById("asset_name").checked = false
+// document.getElementById("Avaliablity").checked = false
+document.getElementById('price').value = 0;
+document.getElementById('price_value').innerHTML = `0`;
+
+nameDiv = document.getElementById('sub_filter_box_data')
+console.log(nameDiv.style.display)
+nameDiv.style.display = 'none';
+console.log(prevMsg)
+let ans = document.getElementById(prevMsg)
+ans.innerHTML = `&#9660`;
+prevMsg ='nonee'
+
+
+
+
+}
+
+const myTimeout = setTimeout(myGreeting, 2000);
+function myGreeting() {
+  document.getElementById("msg").innerHTML = ""
+}
+
+   function myStopFunction() {
+  clearTimeout(myTimeout);
+}
+</script>
+</html>
+
+
+
+

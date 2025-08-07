@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration Form</title>
+    <style>
+        /* Navbar styling */
+        ul {
+            list-style-type: none;
+            margin: -10px;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+        }
+        li {
+            float: right;
+        }
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+                   .forms {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-width: 800px;
+            margin: 30px auto;
+            
+            
+             }
+                     
+                     button[type="submit"] {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            margin-top: 5px;
+            border-radius: 5px;
+            
+        }
+        
+     
+
+      
+     
+    </style>
+</head>
+<body>
+
+{% include 'test_app/navbar.html' %}
+
+    <a href="/inventory"><input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;"></a>
+
+<div class="forms">
+
+<h1 style="text-align: center;">Edit Category</h1>
+<P id="message" style="color: red; text-align: center;"></P>
+
+
+
+
+
+
+    
+        
+            <label style="margin-left: 350px; font-weight: bold; font-size: 20px;">Categories :</label><br><br>
+            <br>
+            <!-- <select name="category_name"  id="category" onchange="all_tool_function()" style="width: 250px;padding: 10px; margin-left: 300px;">
+              <option value="none" >Select Field</option>
+                {% for k in categories %}
+                    <option value="{{k.category_name}}">{{k.category_name}} </option>
+                {% endfor %}
+            </select> -->
+            <input type="text"   name="cat_name" id="category" value="{{categories}}" style="width: 250px;padding: 10px; margin-left: 300px;">
+            <input type="=hidden" name="orgname" id="orgname" value="{{categories}}" style="display: none;">
+
+        <br><br><br>
+        <label style="margin-left: 330px; font-weight: bold; font-size: 20px;">Enter Updated Value :</label><br><br>
+        <input name="all_tools" id="all_tools" placeholder="Enter Comma Seprated Value" value="{{deviceName}}" style="width: 400px;padding: 10px; margin-left: 220px;">
+    <br>
+    <br>
+    <br>
+    <button type="button" onclick="update_function()" style="margin-left: 350px; background-color: black; color: white;">Submit</button><br><br>
+        
+</div>
+</body>
+
+<script>
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+function all_tool_function(){
+    const input=document.getElementById('category')
+    console.log(input.value)
+    categoryValue=input.value
+    fetch('/show-tools/',{
+          method :'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({'category':categoryValue})
+
+    })
+       .then(response => response.json())
+              .then(data => {
+                console.log(data[0].device_name)
+                const tool=document.getElementById('all_tools')
+                tool.value=data[0].device_name
+           })
+       .catch((error) => {
+         console.error('Error:', error);
+});
+
+
+
+}
+
+
+
+
+
+function update_function(){
+  const input=document.getElementById('category')
+  const input1=document.getElementById('all_tools')
+  const input2=document.getElementById('orgname')
+  categoryValue=input.value
+  deviceName=input1.value
+  orgname=input2.value
+  orgname
+      fetch('/edit-category123/',{
+          method :'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({'category':categoryValue,'device':deviceName , 'orgname':orgname})
+
+    })
+       .then(response => response.json())
+              .then(data => {
+                console.log("success")
+                if(data.success){
+                    
+                    if(data.redirect_url){
+                    const messageElement = document.getElementById('message');
+                      
+                        messageElement.textContent = "Edited Successfully";
+                        
+                        setTimeout(function(){
+
+
+                window.location.href = data.redirect_url;
+
+                           },1000);   }
+                }
+                else{
+                  const messageElement=document.getElementById('message')
+                  messageElement.textContent= data.common_tools+ " " +data.message;  
+
+
+                // alert('Error: ' + data.message); 
+
+                }
+        
+           })
+                
+           
+       .catch((error) => {
+         console.error('Error:', error);
+});
+
+}
+
+
+
+
+
+
+</script>
+
+
+</html>
