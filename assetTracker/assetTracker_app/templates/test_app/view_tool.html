@@ -86,12 +86,12 @@
 
 
 
-<button type="button"  style=   "padding: 5px; width: 80px; float: right; margin-top: 110px;"  onclick="search_function()">Search</button>      
+<button type="button"  style="float: right; border-radius: 50%; height: 40px; width: 40px;margin-top: 100px; "  onclick="input_bar_function()"> <i class="fas fa-magnifying-glass"></i></button>      
 
-<input type="text" id="search" name="search"  placeholder="Search Here" style="float: right; margin-top: 110px; padding: 5px;"><br><br>
+<input type="text" id="search" name="search" oninput="search_function()" placeholder="Search Here" style="float: right; margin-top: 110px; padding: 4px; display: none; border-radius: 15px;"><br><br>
 
 
-<h1 class='list' style="text-align: center; margin: 40px;">Asset Details</h1>
+<h1 class='list' style="position: fixed; margin-left: 40%;">Asset Details</h1>
 
 
 <table>
@@ -220,7 +220,14 @@
     const itemsPerPage = 5;
 
 
-
+function input_bar_function(){
+  const inputElement = document.getElementById('search')
+  if (inputElement.style.display === 'none'){
+  inputElement.style.display = 'block';}
+  else{
+    inputElement.style.display = 'none';
+  }
+}
  
 function getCookie(name) {
       let cookieValue = null;

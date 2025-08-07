@@ -140,10 +140,10 @@
 </div>
 
 
-<button type="button" onclick="search_function()" style=   "padding: 3px; width: 80px; float: right; margin-top: 70px;">Search</button>
+<button type="button" onclick="input_bar_function()" style="float: right; border-radius: 50%; height: 40px; width: 40px;margin-top: 65px; ">       <i class="fas fa-magnifying-glass"></i></button>
 
-<input type="text" id="search" name="search" oninput="search_function()" placeholder="Search Here" style="float: right; margin-top: 70px; padding: 3px;"><br>
-<h1 class='list' style="text-align: center; ">Asset Details</h1>
+<input type="text" id="search" name="search" oninput="Advancefilterfunction()" placeholder="Search Here" style="float: right; margin-top: 75px; padding: 3px; display: none; border-radius: 15px;"><br>
+<h1 class='list' style="margin-left: 700px; margin-top: 50px; position: fixed;">Asset Details</h1>
 
 
 <table>
@@ -349,7 +349,7 @@
 {% endif %}
 <br>
 {% if max_price == 0 %}
-<p></p>
+<input hidden id="price" value="0">
 {% else %}
      <div>
         <label style="font-weight: bold;">Asset price less than</label>
@@ -573,6 +573,14 @@ function pagiation(){
   } pagiation.innerHTML=value
    }
   
+function input_bar_function(){
+  const inputElement = document.getElementById('search')
+  if (inputElement.style.display === 'none'){
+  inputElement.style.display = 'block';}
+  else{
+    inputElement.style.display = 'none';
+  }
+}
   
 function changePage(value){
     currentPage=value;
@@ -651,14 +659,16 @@ function Advancefilterfunction(){
       const selectedValues = Array.from(selectedCheckboxes['asset_name']);
       const companyValues = Array.from(selectedCheckboxes['company']);    
       const price = document.getElementById('price')
+      console.log(price)
       const Values = Array.from(selectedCheckboxes['Avaliablity']);
       const categoryValues = Array.from(selectedCheckboxes['category']);
       const conditionValues = Array.from(selectedCheckboxes['condition']);
-      // const location = document.getElementById('asset_location')
+    
       const location = Array.from(selectedCheckboxes['location']);
-
+      
       const waranty = document.getElementById('asset_warantyDate')
-
+      const input=document.getElementById("search")
+      const searchValue = input.value.trim();
 
 
        fetch('/filter-tool/', {
@@ -667,12 +677,13 @@ function Advancefilterfunction(){
           'Content-Type': 'application/json',
           'X-CSRFToken': getCookie('csrftoken')
         },
-        body: JSON.stringify({ name: selectedValues , company :companyValues, price:price.value , avaliablity:Values , category:categoryValues
-          , condition : conditionValues , location : location , waranty :waranty.value
+        body: JSON.stringify({ name: selectedValues , company :companyValues, avaliablity:Values , category:categoryValues
+          , condition : conditionValues , location : location , waranty :waranty.value , price :price.value , search : searchValue
          })
       })
         .then(response => response.json())
       .then(data => {
+          console.log('hello')
           searchResults = data.searched_data
           currentPage = 1;
             document.getElementById('displayOptions').style.display = 'None';
@@ -918,7 +929,7 @@ function displayCheckboxes(message){
 
 function searchCompany(message){
     let text = document.getElementById(message).value;
-    
+    console.log(text)
     const test = document.getElementById('test')
     let html = ''
          fetch('/search-company/', {
@@ -1007,7 +1018,7 @@ function fullList(message){
         else if (message === 'company'){
                       nameDiv.style.display = 'block';
                     html += `<label style="font-weight: bold; font-size: 20px;"> Tool Company </label><br><br>`
-                    html +=`<input id = 'searchCompany' oninput = "searchCompany()" style = "width :120px" placeholder = 'Search here'><br> `
+                    html +=`<input id = 'searchCompany' oninput = "searchCompany('searchCompany')" style = "width :120px" placeholder = 'Search here'><br> `
                     html +=`<div id = test>`
             {% for k in tool_company %}
                 html += `<label><input type="checkbox" value="{{k}}" name="company" ${selectedCheckboxes['company'].has('{{k}}') ? 'checked' : ''}>
@@ -1073,6 +1084,8 @@ document.getElementById("condition").checked = false
 document.getElementById("company").checked = false
 document.getElementById("asset_name").checked = false
 // document.getElementById("Avaliablity").checked = false
+document.getElementById('price').value = 0;
+document.getElementById('price_value').innerHTML = `0`;
 
 nameDiv = document.getElementById('sub_filter_box_data')
 console.log(nameDiv.style.display)

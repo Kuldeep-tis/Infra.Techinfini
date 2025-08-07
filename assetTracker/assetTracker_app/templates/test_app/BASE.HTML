@@ -1,0 +1,214 @@
+Conversation opened. 1 unread message.
+
+Skip to content
+Using TechInfini Mail with screen readers
+
+1 of 107
+Re:
+External
+Inbox
+Harshit Somani presented a form to assign a tool to an employee, including a date.
+The form includes a dynamic search for employees and a dropdown to select a tool.
+By Gemini; there may be mistakes. Learn more
+
+Harshit Somani
+9:35 AM (0 minutes ago)
+to Harshit, me
+
+
+On Thu, 7 Aug, 2025, 8:17 am Harshit Somani, <maheshwariharshit709@gmail.com> wrote:
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Registration Form</title>
+  <style>
+    form {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      max-width: 900px;
+      margin: 30px auto;
+      margin-top: 80px;
+    }
+
+    .login-box {
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-box input, select {
+      width: 20%;
+      padding: 7px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border-color: black;
+    }
+
+    .login-box a {
+      display: block;
+      margin-top: 15px;
+      color: black;
+    }
+
+    .search-container {
+      position: relative;
+      width: 270px;
+      margin-left: -30px;
+    }
+
+    .search-dropdown {
+      position: absolute;
+      top: 38px;
+      left: 0;
+      background: white;
+      border: 1px solid #ccc;
+      max-height: 200px;
+      overflow-y: auto;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    .search-dropdown div {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .search-dropdown div:hover {
+      background-color: #eee;
+    }
+  </style>
+</head>
+<body>
+
+{% include 'test_app/navbar.html' %}
+
+<a href="/dashboard">
+  <input type="submit" value="Back" style="margin-top: 20px; width: 70px; border-radius: 5px; border-color: white; padding: 5px; background-color: black; color: white;">
+</a>
+
+<a href="/view_tool/">
+  <input type="submit" value="Details" style="width: 200px; float: right; margin-top: 20px; padding: 10px;">
+</a>
+
+<p>{{value}}</p>
+
+<form action="/assign_new12/" method="POST">
+  {% csrf_token %}
+  {% if messages %}
+    {% for message in messages %}
+      <p style="text-align: center; color: red;">{{message}}</p>
+    {% endfor %}
+  {% endif %}
+  <h1 style="text-align: center;">Assign Asset</h1>
+
+  <div style="display: flex; gap: 17rem;">
+    <div>
+      {% if flag == "1" %}
+        <label style="margin-left: 50px;">Tool id to assign:</label><br>
+        <input type="text" readonly value="{{tool_name}}({{tool1}})" style="width: 250px; margin-left: 50px; padding: 15px;">
+        <input type="text" hidden name="tool_assign" value="{{tool1}}">
+      {% else %}
+        <label style="margin-left: 100px; font-weight: bold;">Tool id to assign:</label><br>
+        <select name="tool_assign" style="width: 250px; margin-left: 50px; padding: 15px; text-transform: capitalize;">
+          {% for k in tool %}
+            <option value="{{k.tool_id}}">{{k.tool_name}} ({{k.tool_id}}) -> {{k.tool_assigned}}</option>
+          {% endfor %}
+        </select>
+      {% endif %}
+    </div>
+
+    <!-- 👇 Modified Employee Section -->
+    <div>
+      <label style="margin-left: 40px; font-weight: bold;">Employee id:</label><br>
+      <div class="search-container">
+        <input type="text" id="dropdownSearch" placeholder="Search employee..." style="width: 100%; padding: 14px; text-transform: capitalize;">
+        <div id="searchDropdown" class="search-dropdown" style="display: none;"></div>
+        <input type="hidden" id="employee_code_hidden" name="employee_code">
+      </div>
+    </div>
+  </div>
+
+  <br><br>
+
+  <div class="assign-date">
+    <label style="margin-left: 350px; font-weight: bold;">Assigned date:</label><br><br>
+    <input type="date" name="date" id="date" required style="width: 330px; padding: 7px; margin-left: 250px;">
+  </div>
+
+  <br><br>
+  <button type="submit" style="margin-left: 40px; width: 100px; padding: 10px; margin-left: 320px; background-color: black; color: white;">Submit</button>
+  <br><br>
+</form>
+
+<script>
+  const dateInput = document.getElementById("date");
+  dateInput.valueAsDate = new Date();
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  const searchInput = document.getElementById('dropdownSearch');
+  const dropdown = document.getElementById('searchDropdown');
+  const hiddenInput = document.getElementById('employee_code_hidden');
+
+  searchInput.addEventListener('input', function () {
+    const query = this.value;
+    if (query.length < 1) {
+      dropdown.style.display = 'none';
+      return;
+    }
+
+    fetch('/search_employee/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      body: JSON.stringify({ search: query }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        dropdown.innerHTML = '';
+        if (data.length > 0) {
+          dropdown.style.display = 'block';
+          data.forEach(emp => {
+            const div = document.createElement('div');
+            div.textContent = `${emp.employee_name} (${emp.employee_code})`;
+            div.onclick = () => {
+              searchInput.value = `${emp.employee_name} (${emp.employee_code})`;
+              hiddenInput.value = emp.employee_code;
+              dropdown.style.display = 'none';
+            };
+            dropdown.appendChild(div);
+          });
+        } else {
+          dropdown.style.display = 'none';
+        }
+      });
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.search-container')) {
+      dropdown.style.display = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>
+

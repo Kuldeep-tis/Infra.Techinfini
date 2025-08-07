@@ -1232,7 +1232,7 @@ def asset_details(request):
   location = Tools.objects.values('tool_location').distinct()
   company = Tools.objects.values('tool_company').distinct()
   max_ = Tools.objects.aggregate(Max('tool_price'))
-  print("max_price")
+  
   max_price = max_['tool_price__max']
   if max_price == None :
       max_price = 0
@@ -1258,8 +1258,8 @@ def asset_details(request):
       user = company[d]['tool_company']
       d=d+1
       company_list.append(user)
-  
-#   company_list.remove('')
+  if '' in company_list :  
+   company_list.remove('')
   company_list.sort()
 
   for l in category :
@@ -1289,7 +1289,8 @@ def asset_details(request):
      user = location[c]['tool_location']
      c = c+1
      location_list.append(user)
-#   location_list.remove('')
+  if '' in location_list :
+    location_list.remove('')
   len_of_tool_list = len(tool_list)
   len_of_tool_category =len(category_list)
   len_of_location = len(location_list)
@@ -1716,16 +1717,41 @@ def dashboard_redirection(request):
 
 @login_required
 def dashboard_result(request):
-  
+    if request.method == 'POST' :
+        loadData = json.loads(request.body)
+        get_value = loadData.get('search')
+        print(get_value)
+        status = request.session.get('status')
+        print(status)
+        filtered_data = Tools.objects.filter(Q(tool_name__icontains = get_value) | Q(tool_name__iexact = get_value) | Q(tool_id__icontains = get_value) | Q(tool_id__iexact = get_value), tool_avaliability = status)
+        print(filtered_data)
+       
+        data_to_be_sent = list(filtered_data.values('tool_name','tool_id', 'tool_assigned','assigned_employee_id' ,'tool_avaliability','tool_category'))
+        print(data_to_be_sent)
+        return JsonResponse(data_to_be_sent,safe=False)
     status = request.session.get('status')
     print(status)
 
     data = Tools.objects.filter(tool_avaliability=status)
+    total_page = math.ceil(Employee.objects.all().count()/5)
+    if total_page == 0 :
+        total_page = 1
+     
+    items_per_page = 5 
+     
+    paginator = Paginator(data, items_per_page)
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.get_page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
 
-    return render(request, 'test_app/dashboard_redirection.html', {
-        'data': data,
-        'status': status
-    })
+  
+
+    context={'page_obj':page_obj,'status':status , 'total' : total_page}
+    return render(request, 'test_app/dashboard_redirection.html', context)
 
 
 @login_required
@@ -1749,6 +1775,7 @@ def search_employee(request):
     filtered_data=Employee.objects.filter(Q(employee_code__icontains=get_value) | Q(employee_code__iexact=get_value) | Q(employee_name__icontains=get_value) | Q(employee_name__iexact=get_value))
     print(filtered_data)
     data_to_be_sent=list(filtered_data.values('employee_code','employee_name'))
+    print(data_to_be_sent)
     return JsonResponse(data_to_be_sent,safe=False)
 
 @login_required
@@ -1833,6 +1860,8 @@ def filter_tool(request):
    if request.method == 'POST':
       load_filter_value = json.loads(request.body)
       name = load_filter_value.get('name')
+      search = load_filter_value.get('search')
+      print(search)
       if(len(name)<1) :
          name=""
       company = load_filter_value.get('company')
@@ -1860,43 +1889,53 @@ def filter_tool(request):
            waranty = ""
 
 
-      print(company)
+
 
       if(waranty == "" and price == '0' ):
+        
         data = Tools.objects.filter( (Q(tool_name__icontains = name) | Q(tool_name__in = name) ), (Q(tool_condition__icontains = condition) | Q(tool_condition__in =condition)),
                                     (Q(tool_avaliability__icontains = avaliability) | Q(tool_avaliability__in = avaliability)),
                                     (Q(tool_category__in = category) | Q(tool_category__icontains = category)),
                                     (Q(tool_location__icontains = location) | Q(tool_location__in = location)),
-                                   (Q (tool_company__icontains = company) | Q(tool_company__in = company))
-                                  )
+                                   (Q (tool_company__icontains = company) | Q(tool_company__in = company)),
+                                   (Q(tool_name__icontains=search)|Q(tool_name__iexact= search) |Q(tool_id__icontains=search)|
+                                            Q(tool_id__iexact=search)))
   
       elif (waranty == "" ):
-         print(price)
+         
          data = Tools.objects.filter( (Q(tool_name__icontains = name) | Q(tool_name__in = name) ), (Q(tool_condition__icontains = condition) | Q(tool_condition__in =condition)),
                                     (Q(tool_avaliability__icontains = avaliability) | Q(tool_avaliability__in = avaliability)),
                                     (Q(tool_category__in = category) | Q(tool_category__icontains = category)) , (Q(tool_company__icontains = company) | Q(tool_company__in = company)),
-                                    (Q(tool_location__icontains = location) | Q(tool_location__in = location)) ,  tool_price__lt = price)
+                                    (Q(tool_location__icontains = location) | Q(tool_location__in = location)) ,
+                        (Q(tool_name__icontains=search)|Q(tool_name__iexact= search) |Q(tool_id__icontains=search)|
+                                            Q(tool_id__iexact=search)),
+                                        tool_price__lte = price)
       
-      elif (price == '0')  :   
+      elif (price == '0')  : 
+           
          data = Tools.objects.filter( (Q(tool_name__icontains = name) | Q(tool_name__in = name) ), (Q(tool_condition__icontains = condition) | Q(tool_condition__in =condition)),
                                     (Q(tool_avaliability__icontains = avaliability) | Q(tool_avaliability__in = avaliability)),
                                     (Q(tool_category__in = category) | Q(tool_category__icontains = category)) , (Q(tool_company__icontains = company) | Q(tool_company__in = company)),
                                       (Q(tool_location__icontains = location) | Q(tool_location__in = location)), 
+                        (Q(tool_name__icontains=search)|Q(tool_name__iexact= search) |Q(tool_id__icontains=search)|
+                                            Q(tool_id__iexact=search)),
                                      tool_warantty__lt = waranty )
       
            
 
       else :     
-        
-         data = Tools.objects.filter( (Q(tool_name__icontains = name) | Q(tool_name__in = name) ), (Q(tool_condition__icontains = condition) | Q(tool_condition__in =condition)),
+     
+       data = Tools.objects.filter( (Q(tool_name__icontains = name) | Q(tool_name__in = name) ), (Q(tool_condition__icontains = condition) | Q(tool_condition__in =condition)),
                                     (Q(tool_avaliability__icontains = avaliability) | Q(tool_avaliability__in = avaliability)),
                                     (Q(tool_category__in = category) | Q(tool_category__icontains = category)) , (Q(tool_company__icontains = company) | Q(tool_company__in = company)),
                                       (Q(tool_location__icontains = location) | Q(tool_location__in = location)) ,
-                                    (Q(tool_warantty__icontains = waranty) | Q( tool_warantty__lt = waranty )) , tool_price__lt = price)
+                                    (Q(tool_warantty__icontains = waranty) | Q( tool_warantty__lt = waranty )) , (Q(tool_name__icontains=search)|Q(tool_name__iexact= search) |Q(tool_id__icontains=search)|
+                                            Q(tool_id__iexact=search)),tool_price__lte = price, )
       print(data)
       data_to_be_sent=list(data.values('tool_name','tool_id','tool_category','tool_assigned','assigned_employee_id','tool_avaliability',
                                                 'tool_company','tool_model','tool_purchase','tool_warantty','tool_condition',
                                                 'tool_price','tool_supplier','tool_invoice','tool_location','tool_remark','tool_assigneddate','tool_type'))
+      
       response_data = {
                 'searched_data': data_to_be_sent
 
@@ -1924,7 +1963,7 @@ def search_company(request):
     if request.method == 'POST' :
       print('hello')
       loadText = json.loads(request.body)
-      text = loadText.get('tool_filter').strip()
+      text = loadText.get('tool_filter').lower().strip()
       message  = loadText.get('message').strip()
       if message == 'searchCompany' :      
 
@@ -1935,6 +1974,7 @@ def search_company(request):
           d=0
           for k in company :
             user = company[d]['tool_company']
+            
             if  user.startswith(text) :
               print(user)
               company_list.append(user)
@@ -1957,6 +1997,7 @@ def search_company(request):
           d=0
           for k in location :
             user = location[d]['tool_location']
+
             if user.startswith(text) :
               print(user)
               location_list.append(user)

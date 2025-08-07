@@ -114,12 +114,12 @@
   </a>
 <br><br><br>
   
-    <button type="button" style=   "padding: 3px; width: 80px; float: right; margin-top: 30px;" onclick="myFunction()">Search</button>
+    <button type="button" style=   "padding: 3px; width: 40px; height: 40px; float: right; margin-top: 30px; border-radius: 50%;" onclick="input_bar_function()"><i class="fas fa-magnifying-glass"></i></button>
 
-    <input type="text" id="filter" name="filter"   placeholder="Search Here" style="float: right; margin-top: 30px; padding: 3px;">
+    <input type="text" id="filter" oninput="myFunction()" name="filter"   placeholder="Search Here" style="float: right; margin-top: 40px; padding: 3px; display: none; border-radius: 15px;">
   
 
-    <h1 class='list' style="text-align: center;">Employee Details</h1>
+    <h1 class='list' style="position: fixed; margin-left: 40%;">Employee Details</h1>
 <table id="dataTable" >
     <thead style="background-color: #eee;">
       <tr>
@@ -225,10 +225,20 @@ function getCookie(name) {
       return cookieValue;
     }
 
+function input_bar_function(){
+  const inputElement = document.getElementById('filter')
+  if (inputElement.style.display === 'none'){
+  inputElement.style.display = 'block';}
+  else{
+    inputElement.style.display = 'none';
+  }
+}
+
 
 function myFunction() {
       const input = document.getElementById("filter");
       const filterValue = input.value.trim();
+      console.log(filterValue)
 
       fetch('/view-employee/', {
         method: 'POST',

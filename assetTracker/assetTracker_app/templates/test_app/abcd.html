@@ -42,6 +42,21 @@
       margin-top: 15px;
       color: black
     }
+    .search{
+                  background-color: #f7f0f0;
+          
+            padding: 20px;
+            border: 1px solid #888;
+            width: 200px;
+             /* box-shadow: 50px 50px 100px 20px rgba(0, 0, 0, 0.5); */
+             box-shadow: 50px 50px 100px 20px rgba(0, 0, 0, 0.2);
+
+            height: 40vh;
+            border-radius: 10px;
+            overflow: scroll;
+            
+            cursor: pointer;
+    }
     </style>
 </head>
 <body>
@@ -69,8 +84,10 @@
 <div  style="display: flex; margin-left: 480px;">
 
   <div>
+     <input type="text"  id="dropdownSearch" placeholder="Search..." style="width: 170px; margin-left: 65px;"  >
   </div>
   <div>
+      <button type="button" onclick="search()" style="margin-top: 1px; width: 80px; padding: 1px;"  >search</button> 
 
   </div>
 </div><br>
@@ -79,30 +96,27 @@
 
 
         <div>
-
+             
                 <label style="margin-left: 100px; font-weight: bold;">Tool id to assign:</label><br>
                 <select name="tool_assign" style="width: 250px; margin-left: 50px; padding: 15px; text-transform: capitalize;">
                     {% for k in tool %}
                         <option value="{{k.tool_id}}">{{k.tool_name}} ({{k.tool_id}}) -> {{k.tool_assigned}}</option>
                     {% endfor %}
                 </select>
-            
+          
         </div>
         <div>
-           
-               <label style="margin-left: 40px; font-weight: bold; ">Employee id:</label><br>
-                  <div style="display: flex; flex-direction: column; gap: -10rem;">
-                    <div>
-                     <input type="text"  id="dropdownSearch"  oninput="search()" placeholder="Search..." style="width: 260px; border: none; margin-left: -30px; padding: 2px;"  >
-                    </div>
-                    <div>
-                   <ul id="showDropdown" name="employee_code" style="overflow: scroll; margin-left: -30px; margin-top: 5px; background-color: #ddd; height: 10vh; display: none;">
-
-                   </ul>
-                    
-                    </div>
-                  </div>
+           <div>
+               <label style="margin-left: 40px; font-weight: bold;">Employee id:</label><br>
+              <input type="text" name="employee_code" id="employee_code" oninput="search()" style="width: 200px; padding: 15px; background-color: #d1d1d1;">
+           </div>
+             <div class="search" style="display: none;" id="employeeSearch">
+              {% for k in employee %}
+              <p>{{k}}</p>
+              {% endfor %}
+             </div>
         </div>
+        
 </div>
 <br>
 <br>
@@ -122,12 +136,7 @@
 <script>
 
 
-    function valueSelected(id){
-      const input=document.getElementById('showDropdown')
-      console.log(input.value)
-      const tool=document.getElementById('dropdownSearch')
-     tool.value=input.value
-    }
+
         
     function getCookie(name) {
       let cookieValue = null;
@@ -145,9 +154,7 @@
     }
       
 
-    function newfunction(){
-        console.log("hello")
-    }
+ 
     
 
         function search(){
@@ -167,31 +174,20 @@
               .then(data => {
                 console.log('hello')
 
-                const dropdown = document.getElementById('showDropdown');
+                const dropdown = document.getElementById('employeeSearch');
                 dropdown.style.display = 'block';
-                dropdown.innerHTML=''
-                for (let i = 0; i < data.length; i++) {
-                    const option = document.createElement('option');
-                    option.textContent = data[i]['employee_name']+"("+data[i]['employee_code']+")"
-                    option.value = data[i]['employee_code']
-                    console.log(data[i]['employee_code'])
-                    dropdown.appendChild(option);
-                  }
-                      })
-          }
- 
+                let html = '';
+                for(let i=0 ; i<data.length ; i++){
+                  html += data[i]['employee_name'];
+                  html +=`<br>`
+                  console.log(data[i])
+                }
+                dropdown.innerHTML = html;
+                
+          })
+        }
 
         
-
-
-
-
-
-
-
-
-
-
 
 
     const dateInput = document.getElementById("date");
